@@ -1,0 +1,3 @@
+Write MapReduce program which takes text file as an input, searches the longest word and writes this word to the output.
+
+Think and discuss with mentor how to improve performance of this program and apply it for multiple files.
