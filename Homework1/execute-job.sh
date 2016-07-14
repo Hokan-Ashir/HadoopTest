@@ -26,5 +26,5 @@ bin/hdfs dfs -copyFromLocal /opt/file2 hdfs://$HOSTNAME:9000/job_input/file2
 echo "Coping file2 from local docker FS to HDFS complete"
 
 echo "Running a job ..."
-bin/hadoop jar /opt/homework-1.jar WordCounter /job_input /job_output
+bin/hadoop jar /opt/homework-1.jar LongestWordCounter /job_input /job_output
 echo "MR job has finished"

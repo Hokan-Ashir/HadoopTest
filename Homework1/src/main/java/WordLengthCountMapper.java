@@ -6,12 +6,10 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.StringTokenizer;
 
 public class WordLengthCountMapper extends Mapper<LongWritable, Text, Text, Text> {
     private static final Logger LOGGER = Logger.getLogger(WordLengthCountMapper.class);
-    private Pattern pattern;
     // full file path
     private Text keyOut;
 
@@ -20,9 +18,6 @@ public class WordLengthCountMapper extends Mapper<LongWritable, Text, Text, Text
      */
     @Override
     public void setup(Context context) throws IOException {
-//        TODO use StringTokenizer
-        pattern = Pattern.compile("(\\w+)");
-
         Path filePath = ((FileSplit) context.getInputSplit()).getPath();
         keyOut = new Text(filePath.toString());
     }
@@ -34,12 +29,12 @@ public class WordLengthCountMapper extends Mapper<LongWritable, Text, Text, Text
     public void map(LongWritable key, Text valueIn, Context context)
             throws IOException, InterruptedException {
         String input = valueIn.toString();
-        Matcher matcher = pattern.matcher(input);
+        StringTokenizer tokenizer = new StringTokenizer(input);
 
         int maximumFoundWordLength = Integer.MIN_VALUE;
         String maximumLengthWord = "";
-        while (matcher.find()) {
-            String matchedWord = matcher.group();
+        while (tokenizer.hasMoreTokens()) {
+            String matchedWord = tokenizer.nextToken();
             int lengthOfWord = matchedWord.length();
 
             // TODO what if we find 2+ words with same maximum length?
