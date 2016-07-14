@@ -10,7 +10,8 @@ import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
 
-public class WordCounter {
+//TODO rewrite to implement Tool, Configurable
+public class LongestWordCounter {
 
     public static void main(String[] args)
             throws IOException, ClassNotFoundException, InterruptedException {
@@ -23,7 +24,7 @@ public class WordCounter {
         Configuration config = new Configuration();
 
         Job job = new Job(config, "grep");
-        job.setJarByClass(WordCounter.class);
+        job.setJarByClass(LongestWordCounter.class);
 
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));

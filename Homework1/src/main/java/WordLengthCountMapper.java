@@ -20,6 +20,7 @@ public class WordLengthCountMapper extends Mapper<LongWritable, Text, Text, Text
      */
     @Override
     public void setup(Context context) throws IOException {
+//        TODO use StringTokenizer
         pattern = Pattern.compile("(\\w+)");
 
         Path filePath = ((FileSplit) context.getInputSplit()).getPath();
