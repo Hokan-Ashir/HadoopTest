@@ -1,4 +1,5 @@
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.BufferedFSInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
@@ -7,18 +8,17 @@ import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.CompressionCodecFactory;
 import org.apache.log4j.Logger;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.TreeSet;
+import java.io.InputStreamReader;
+import java.util.*;
 import java.util.concurrent.Callable;
 
-public class FileProcessor implements Callable<Set<String>> {
+public class FileProcessor implements Callable<Map<String, Integer>> {
 
     private static final Logger LOGGER = Logger.getLogger(FileProcessor.class);
-    private static final int IP_IN_YOU_ID_LENGTH = 11;
+    private static final int POSITION_OF_IP_IN_YOU_ID_IN_LOG_FILE = 2;
 
     private final LocatedFileStatus fileStatus;
     private final FileSystem fileSystem;
@@ -34,7 +34,7 @@ public class FileProcessor implements Callable<Set<String>> {
      * {@inheritDoc}
      */
     @Override
-    public Set<String> call() throws Exception {
+    public Map<String, Integer> call() throws Exception {
         Path inputPath = fileStatus.getPath();
         CompressionCodecFactory factory = new CompressionCodecFactory(configuration);
         CompressionCodec codec = factory.getCodec(inputPath);
@@ -47,10 +47,10 @@ public class FileProcessor implements Callable<Set<String>> {
         String processingStarted = "Processing data from file " + path + " ...";
         LOGGER.info(processingStarted);
         InputStream inputStream = null;
-        Set<String> ipInYouIdentSet = null;
+        Map<String, Integer> ipInYouIdentMap = null;
         try {
             inputStream = codec.createInputStream(fileSystem.open(inputPath));
-            ipInYouIdentSet = getIpInYouIdentSet(inputStream);
+            ipInYouIdentMap = getIpInYouIdentSet(inputStream);
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         } finally {
@@ -60,20 +60,29 @@ public class FileProcessor implements Callable<Set<String>> {
         String processingFinished = "Processing data from file " + path + " completed";
         LOGGER.info(processingFinished);
 
-        return ipInYouIdentSet;
+        return ipInYouIdentMap;
     }
 
-    private Set<String> getIpInYouIdentSet(InputStream stream) {
-        Set<String> stringSet = new TreeSet<String>(Collections.reverseOrder());
+    private Map<String, Integer> getIpInYouIdentSet(InputStream stream) {
+        Map<String, Integer> stringSet = new TreeMap<String, Integer>(Collections.reverseOrder());
 
-        Scanner scanner = new Scanner(stream).useDelimiter("\n");
-        while (scanner.hasNext()) {
-            String next = scanner.next();
-            String ipInYouIdent = next.split("\t")[2];
-            int length = ipInYouIdent.length();
-            if (length == IP_IN_YOU_ID_LENGTH || length == IP_IN_YOU_ID_LENGTH + 1) {
-                stringSet.add(ipInYouIdent);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        try {
+            for (String line; (line = reader.readLine()) != null; ) {
+                String ipInYouIdent = line.split("\t")[POSITION_OF_IP_IN_YOU_ID_IN_LOG_FILE];
+                if (ipInYouIdent.equals("null")) {
+                    continue;
+                }
+
+                Integer previousValue = stringSet.get(ipInYouIdent);
+                if (previousValue == null) {
+                    stringSet.put(ipInYouIdent, 1);
+                } else {
+                    stringSet.put(ipInYouIdent, previousValue + 1);
+                }
             }
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
         }
 
         return stringSet;

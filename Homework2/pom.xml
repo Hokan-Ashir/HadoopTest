@@ -29,7 +29,7 @@
         <file.name.to.copy.november>bid.20130611.txt.bz2</file.name.to.copy.november>
         <file.name.to.copy.december>bid.20130612.txt.bz2</file.name.to.copy.december>
 
-        <!--<file.name.to.copy.test>bid.20131019.txt.bz2</file.name.to.copy.test>-->
+        <file.name.to.copy.test>bid.20131019.txt.bz2</file.name.to.copy.test>
         <!--<file.name.to.copy.test2>bid.20131020.txt.bz2</file.name.to.copy.test2>-->
     </properties>
 
@@ -103,6 +103,7 @@
                                      todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
                                 <echo message="Coping execute job file: ${job.executor.script.name} completed" />
 
+                                <!--Coping data files-->
                                 <echo message="Coping ${file.name.to.copy.june} ..." />
                                 <scp trust="true" failonerror="true" verbose="off" sftp="true"
                                      file="${basedir}/src/main/data/${file.name.to.copy.june}"

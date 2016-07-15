@@ -3,7 +3,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
-import org.apache.hadoop.util.Progressable;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedWriter;
@@ -41,30 +40,39 @@ public class PathFilesProcessor {
 
     private void processFiles(Configuration configuration, FileSystem fileSystem, RemoteIterator<LocatedFileStatus> locatedFileStatusRemoteIterator) throws IOException {
         ExecutorService service = Executors.newCachedThreadPool();
-        Set<Future<Set<String>>> futureSet = new HashSet<Future<Set<String>>>();
+        Set<Future<Map<String, Integer>>> futureSet = new HashSet<Future<Map<String, Integer>>>();
 
         while (locatedFileStatusRemoteIterator.hasNext()) {
             LocatedFileStatus fileStatus = locatedFileStatusRemoteIterator.next();
             FileProcessor processor = new FileProcessor(fileStatus, fileSystem, configuration);
-            Future<Set<String>> future = service.submit(processor);
+            Future<Map<String, Integer>> future = service.submit(processor);
             futureSet.add(future);
         }
 
-        Set<String> stringSet = printFilesIpInYouIdents(futureSet);
+        Map<String, Integer> combinedIdentsMap = createCombinedMapOfUniqueIdents(futureSet);
+        List<Map.Entry<String, Integer>> sortedDescendedEntities = sortMapByValuesDescending(combinedIdentsMap);
         try {
-            writeTopNipInYouIdents(NUMBER_OF_TOP_ELEMENTS_TO_PRINT_IN_HDFS, stringSet);
+            writeTopNipInYouIdents(NUMBER_OF_TOP_ELEMENTS_TO_PRINT_IN_HDFS, sortedDescendedEntities);
         } catch (URISyntaxException e) {
             LOGGER.error(e.getMessage(), e);
         }
     }
 
-    private Set<String> printFilesIpInYouIdents(Set<Future<Set<String>>> futureSet) {
-        Set<String> combinedSet = new TreeSet<String>(Collections.<String>reverseOrder());
+    private Map<String, Integer> createCombinedMapOfUniqueIdents(Set<Future<Map<String, Integer>>> futureSet) {
+        LOGGER.info("Creating combined map of unique idents ...");
+        Map<String, Integer> combinedMap = new TreeMap<String, Integer>(Collections.<String>reverseOrder());
 
-        for (Future<Set<String>> integerFuture : futureSet) {
+        for (Future<Map<String, Integer>> integerFuture : futureSet) {
             try {
-                Set<String> value = integerFuture.get();
-                combinedSet.addAll(value);
+                Map<String, Integer> value = integerFuture.get();
+                for (Map.Entry<String, Integer> stringIntegerEntry : value.entrySet()) {
+                    Integer previousValue = combinedMap.get(stringIntegerEntry.getKey());
+                    if (previousValue == null) {
+                        combinedMap.put(stringIntegerEntry.getKey(), stringIntegerEntry.getValue());
+                    } else {
+                        combinedMap.put(stringIntegerEntry.getKey(), previousValue + stringIntegerEntry.getValue());
+                    }
+                }
             } catch (InterruptedException e) {
                 LOGGER.error(e.getMessage(), e);
             } catch (ExecutionException e) {
@@ -72,15 +80,28 @@ public class PathFilesProcessor {
             }
         }
 
-        System.out.println("Resulted descended sorted set of ipInYouIdents:");
-        for (String s : combinedSet) {
-            LOGGER.info(s);
-        }
+        LOGGER.info("Combined map of unique idents creation completed");
 
-        return combinedSet;
+        return combinedMap;
     }
 
-    private void writeTopNipInYouIdents(int count, Set<String> identSet) throws URISyntaxException, IOException {
+    private List<Map.Entry<String, Integer>> sortMapByValuesDescending(Map<String, Integer> map) {
+
+        List<Map.Entry<String, Integer>> sortedEntries = new ArrayList<Map.Entry<String, Integer>>(map.entrySet());
+
+        Collections.sort(sortedEntries, new Comparator<Map.Entry<String, Integer>>() {
+                    @Override
+                    public int compare(Map.Entry<String, Integer> e1, Map.Entry<String, Integer> e2) {
+                        return e2.getValue().compareTo(e1.getValue());
+                    }
+                }
+        );
+
+        return sortedEntries;
+    }
+
+    private void writeTopNipInYouIdents(int count, List<Map.Entry<String, Integer>> entryList) throws URISyntaxException, IOException {
+        LOGGER.info("Writing top " + count + " ipInYou idents ...");
         String hostname = System.getenv("HOSTNAME");
         Configuration configuration = new Configuration();
         FileSystem fileSystem = FileSystem.get(new URI("hdfs://" + hostname + ":9000"), configuration);
@@ -92,11 +113,18 @@ public class PathFilesProcessor {
         OutputStream outputStream = fileSystem.create(file);
         BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
         int i = 0;
-        for (Iterator<String> iterator = identSet.iterator(); iterator.hasNext() && i < count; ++i) {
-            bufferedWriter.write(iterator.next());
+        for (Map.Entry<String, Integer> stringIntegerEntry : entryList) {
+            bufferedWriter.write(stringIntegerEntry.getKey() + " : " + stringIntegerEntry.getValue());
             bufferedWriter.write('\n');
+            i++;
+            if (i >= count) {
+                break;
+            }
         }
+
         bufferedWriter.close();
         fileSystem.close();
+
+        LOGGER.info("Writing top " + count + " ipInYou idents completed");
     }
 }
