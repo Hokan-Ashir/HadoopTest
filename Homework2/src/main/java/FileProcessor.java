@@ -9,12 +9,16 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
-public class FileProcessor implements Callable<Integer> {
+public class FileProcessor implements Callable<Set<String>> {
 
     private static final Logger LOGGER = Logger.getLogger(FileProcessor.class);
-    private static final int BUFF_SIZE = 4096;
+    private static final int IP_IN_YOU_ID_LENGTH = 11;
 
     private final LocatedFileStatus fileStatus;
     private final FileSystem fileSystem;
@@ -30,7 +34,7 @@ public class FileProcessor implements Callable<Integer> {
      * {@inheritDoc}
      */
     @Override
-    public Integer call() throws Exception {
+    public Set<String> call() throws Exception {
         Path inputPath = fileStatus.getPath();
         CompressionCodecFactory factory = new CompressionCodecFactory(configuration);
         CompressionCodec codec = factory.getCodec(inputPath);
@@ -41,16 +45,12 @@ public class FileProcessor implements Callable<Integer> {
         }
 
         String processingStarted = "Processing data from file " + path + " ...";
-        System.out.println(processingStarted);
         LOGGER.info(processingStarted);
         InputStream inputStream = null;
-        int numberOfLinesInFile = 0;
+        Set<String> ipInYouIdentSet = null;
         try {
             inputStream = codec.createInputStream(fileSystem.open(inputPath));
-            numberOfLinesInFile = getNumberOfLinesInFile(inputStream);
-            String resultString = "File \'" + path + "\' has " + numberOfLinesInFile + " lines in it";
-            System.out.println(resultString);
-            LOGGER.info(resultString);
+            ipInYouIdentSet = getIpInYouIdentSet(inputStream);
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         } finally {
@@ -58,29 +58,24 @@ public class FileProcessor implements Callable<Integer> {
         }
 
         String processingFinished = "Processing data from file " + path + " completed";
-        System.out.println(processingFinished);
         LOGGER.info(processingFinished);
 
-        return numberOfLinesInFile;
+        return ipInYouIdentSet;
     }
 
-    private int getNumberOfLinesInFile(InputStream inputStream) throws IOException {
-        try {
-            byte[] c = new byte[BUFF_SIZE];
-            int count = 0;
-            int readChars;
-            boolean empty = true;
-            while ((readChars = inputStream.read(c)) != -1) {
-                empty = false;
-                for (int i = 0; i < readChars; ++i) {
-                    if (c[i] == '\n') {
-                        ++count;
-                    }
-                }
+    private Set<String> getIpInYouIdentSet(InputStream stream) {
+        Set<String> stringSet = new TreeSet<String>(Collections.reverseOrder());
+
+        Scanner scanner = new Scanner(stream).useDelimiter("\n");
+        while (scanner.hasNext()) {
+            String next = scanner.next();
+            String ipInYouIdent = next.split("\t")[2];
+            int length = ipInYouIdent.length();
+            if (length == IP_IN_YOU_ID_LENGTH || length == IP_IN_YOU_ID_LENGTH + 1) {
+                stringSet.add(ipInYouIdent);
             }
-            return (count == 0 && !empty) ? 1 : count;
-        } finally {
-            inputStream.close();
         }
+
+        return stringSet;
     }
 }
