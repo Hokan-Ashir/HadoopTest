@@ -1,11 +1,11 @@
+package ru.hokan;
+
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
 public class IpDataCountCombiner extends Reducer<Text, Text, Text, Text> {
-    private static final Logger LOGGER = Logger.getLogger(IpDataCountMapper.class);
 
     /**
      * {@inheritDoc}
