@@ -1,4 +1,4 @@
-package ru.hokan;
+package ru.hokan.text;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;

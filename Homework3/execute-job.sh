@@ -29,5 +29,6 @@ done
 
 export HADOOP_CLIENT_OPTS="-Xmx4g -Xmn1g -Xms4g $HADOOP_CLIENT_OPTS"
 echo "Running a job ..."
-bin/hadoop jar /opt/homework-3.jar IpBytesCounter hdfs://$HOSTNAME:9000/$INPUT_JOB_PATH/ hdfs://$HOSTNAME:9000/$OUTPUT_JOB_PATH
+#bin/hadoop jar /opt/homework-3.jar ru.hokan.text.IpBytesCounter hdfs://$HOSTNAME:9000/$INPUT_JOB_PATH/ hdfs://$HOSTNAME:9000/$OUTPUT_JOB_PATH
+bin/hadoop jar /opt/homework-3.jar ru.hokan.custom.IpBytesCounter hdfs://$HOSTNAME:9000/$INPUT_JOB_PATH/ hdfs://$HOSTNAME:9000/$OUTPUT_JOB_PATH
 echo "MR job has finished"

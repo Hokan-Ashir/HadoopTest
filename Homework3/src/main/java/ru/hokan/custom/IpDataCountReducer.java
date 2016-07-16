@@ -1,27 +1,27 @@
-package ru.hokan;
+package ru.hokan.custom;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
 
-public class IpDataCountReducer extends Reducer<Text, Text, Text, Text> {
+public class IpDataCountReducer extends Reducer<Text, AverageTotalBytesWritable, Text, Text> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void reduce(Text keyIn, Iterable<Text> valuesIn, Context context)
+    public void reduce(Text keyIn, Iterable<AverageTotalBytesWritable> valuesIn, Context context)
             throws IOException, InterruptedException {
 
         Integer totalNumberOfBytes = 0;
         int numberOfValues = 0;
-        for (Text text : valuesIn) {
-            String value = text.toString();
+        for (AverageTotalBytesWritable writable : valuesIn) {
+            String value = writable.toString();
             String[] split = value.split("\\s");
-            float averageBytesCount = Float.parseFloat(split[0]);
-            int totalBytesCount = Integer.parseInt(split[1]);
-            totalNumberOfBytes += Integer.parseInt(split[1]);
+            float averageBytesCount = writable.getAverageValue();
+            int totalBytesCount = writable.getTotalValue();
+            totalNumberOfBytes += totalBytesCount;
             if (averageBytesCount != 0) {
                 numberOfValues += Math.ceil(totalBytesCount / averageBytesCount);
             } else {

@@ -5,6 +5,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mrunit.mapreduce.MapDriver;
 import org.junit.Before;
 import org.junit.Test;
+import ru.hokan.text.IpDataCountMapper;
 
 import java.io.IOException;
 
