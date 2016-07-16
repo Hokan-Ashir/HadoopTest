@@ -14,20 +14,14 @@ public class IpDataCountCombiner extends Reducer<Text, Text, Text, Text> {
     public void reduce(Text keyIn, Iterable<Text> valuesIn, Context context)
             throws IOException, InterruptedException {
 
-        int maximumFoundWordLength = Integer.MIN_VALUE;
-        String maximumLengthWord = "";
-        for(Text value: valuesIn) {
-            String matchedWord = value.toString();
-            int lengthOfWord = matchedWord.length();
-
-            // TODO what if we find 2+ words with same maximum length?
-            if (lengthOfWord > maximumFoundWordLength) {
-                maximumFoundWordLength = lengthOfWord;
-                maximumLengthWord = matchedWord;
-            }
+        Integer totalNumberOfBytes = 0;
+        int numberOfValues = 0;
+        for (Text text : valuesIn) {
+            totalNumberOfBytes += Integer.valueOf(text.toString());
+            numberOfValues++;
         }
 
-        LOGGER.info("Found longest word \'" + maximumLengthWord + "\'(" + maximumFoundWordLength + ") in file \'" + keyIn + "\'");
-        context.write(keyIn, new Text(maximumLengthWord));
+        float averageNumberOfBytes = (float) totalNumberOfBytes / numberOfValues;
+        context.write(keyIn, new Text(averageNumberOfBytes + " " + totalNumberOfBytes));
     }
 }

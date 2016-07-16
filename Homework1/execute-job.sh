@@ -25,6 +25,7 @@ echo "Coping file2 from local docker FS to HDFS ..."
 bin/hdfs dfs -copyFromLocal /opt/file2 hdfs://$HOSTNAME:9000/job_input/file2
 echo "Coping file2 from local docker FS to HDFS complete"
 
+export HADOOP_CLIENT_OPTS="-Xmx4g -Xmn1g -Xms4g $HADOOP_CLIENT_OPTS"
 echo "Running a job ..."
 bin/hadoop jar /opt/homework-1.jar LongestWordCounter /job_input /job_output
 echo "MR job has finished"

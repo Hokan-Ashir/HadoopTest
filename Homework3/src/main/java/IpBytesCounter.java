@@ -13,8 +13,8 @@ import org.apache.hadoop.util.ToolRunner;
 public class IpBytesCounter extends Configured implements Tool {
 
     public static void main(String[] args) throws Exception {
-        if(args.length != 1) {
-            System.out.println("Usage: <inDir>");
+        if (args.length != 2) {
+            System.out.println("Usage: <inDir> <outDir>");
             ToolRunner.printGenericCommandUsage(System.out);
             System.exit(-1);
         }
@@ -29,6 +29,7 @@ public class IpBytesCounter extends Configured implements Tool {
     @Override
     public int run(String[] args) throws Exception {
         Configuration config = new Configuration();
+        config.set("mapred.textoutputformat.separator", ",");
         config.setInt(NLineInputFormat.LINES_PER_MAP, 1000);
 
         Job job = Job.getInstance(config);

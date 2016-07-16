@@ -1,6 +1,7 @@
 #!/bin/bash
 
 INPUT_JOB_PATH=job_input
+OUTPUT_JOB_PATH=job_output
 FILE_NAMES_ARRAY[0]=000000
 
 cd $HADOOP_PREFIX
@@ -26,6 +27,7 @@ for n in "${FILE_NAMES_ARRAY[@]}"; do
     echo "Coping ${n} from local docker FS to HDFS complete"
 done
 
+export HADOOP_CLIENT_OPTS="-Xmx4g -Xmn1g -Xms4g $HADOOP_CLIENT_OPTS"
 echo "Running a job ..."
-bin/hadoop jar /opt/homework-3.jar IpBytesCounter hdfs://$HOSTNAME:9000/$INPUT_JOB_PATH/
+bin/hadoop jar /opt/homework-3.jar IpBytesCounter hdfs://$HOSTNAME:9000/$INPUT_JOB_PATH/ hdfs://$HOSTNAME:9000/$OUTPUT_JOB_PATH
 echo "MR job has finished"

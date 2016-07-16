@@ -1,15 +1,14 @@
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.lib.input.FileSplit;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
-import java.util.StringTokenizer;
 
 public class IpDataCountMapper extends Mapper<LongWritable, Text, Text, Text> {
-    private static final Logger LOGGER = Logger.getLogger(IpDataCountMapper.class);
+
+
+    private static final int POSITION_NUMBER_OF_BYTES_IN_STRING = 9;
+    private static final int POSITION_IP_ADDR_IN_STRING = 0;
 
     /**
      * {@inheritDoc}
@@ -18,7 +17,14 @@ public class IpDataCountMapper extends Mapper<LongWritable, Text, Text, Text> {
     public void map(LongWritable key, Text valueIn, Context context)
             throws IOException, InterruptedException {
         String input = valueIn.toString();
-        LOGGER.info(input);
-        context.write(new Text("lala"), new Text("da"));
+        String[] split = input.split("\\s");
+        String ipName = split[POSITION_IP_ADDR_IN_STRING];
+
+        String numberOfBytesStringPart = split[POSITION_NUMBER_OF_BYTES_IN_STRING];
+        if (numberOfBytesStringPart.equals("-")) {
+            return;
+        }
+        Integer numberOfBytes = Integer.valueOf(numberOfBytesStringPart);
+        context.write(new Text(ipName), new Text(String.valueOf(numberOfBytes)));
     }
 }
