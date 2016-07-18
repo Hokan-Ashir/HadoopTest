@@ -1,5 +1,6 @@
 package ru.hokan;
 
+import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -7,7 +8,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-public class CityImpressionsMapper extends Mapper<LongWritable, Text, IntWritable, IntWritable> {
+public class CityImpressionsMapper extends Mapper<LongWritable, Text, OSTypeCityIdWritable, IntWritable> {
 
     private static final int POSITION_CITY = 7;
 
@@ -22,6 +23,9 @@ public class CityImpressionsMapper extends Mapper<LongWritable, Text, IntWritabl
         String city = split[POSITION_CITY];
         Integer cityValue = Integer.valueOf(city);
 
-        context.write(new IntWritable(cityValue), new IntWritable(1));
+        UserAgent userAgent = UserAgent.parseUserAgentString(input);
+        String osName = userAgent.getOperatingSystem().getName();
+
+        context.write(new OSTypeCityIdWritable(osName, cityValue), new IntWritable(1));
     }
 }

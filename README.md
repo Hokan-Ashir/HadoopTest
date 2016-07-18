@@ -10,7 +10,7 @@ Common - separate SCP/SH to Virtual host to Docker to HDFS from "clean install" 
     reduce jar-file size, via shade plugin "exclude all" then "include only UserAgent lib"
 
  - HW4
-    ?????
+    reduce jar-file size, via shade plugin "exclude all" then "include only UserAgent lib"
 
  - HW5
     ?????

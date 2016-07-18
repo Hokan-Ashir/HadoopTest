@@ -11,7 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class CityImpressionsReducer extends Reducer<IntWritable, IntWritable, Text, Text> {
+public class CityImpressionsReducer extends Reducer<OSTypeCityIdWritable, IntWritable, Text, Text> {
 
     private static final String CITY_FILE_NAME = "city.en.txt";
     private static final int CITY_KEY_IN_FILE_POSITION = 0;
@@ -22,7 +22,7 @@ public class CityImpressionsReducer extends Reducer<IntWritable, IntWritable, Te
      * {@inheritDoc}
      */
     @Override
-    public void reduce(IntWritable keyIn, Iterable<IntWritable> valuesIn, Context context)
+    public void reduce(OSTypeCityIdWritable keyIn, Iterable<IntWritable> valuesIn, Context context)
             throws IOException, InterruptedException {
 
         Integer totalNumberOfImpressions = 0;
@@ -34,8 +34,8 @@ public class CityImpressionsReducer extends Reducer<IntWritable, IntWritable, Te
             return;
         }
 
-        String cityName = getCityName(context, keyIn.get());
-        context.write(new Text(cityName), new Text(totalNumberOfImpressions.toString()));
+        String cityName = getCityName(context, keyIn.getCityId());
+        context.write(new Text(keyIn.getOsTypeName() + " : " + cityName), new Text(totalNumberOfImpressions.toString()));
     }
 
     private String getCityName(Context context, int cityKey) throws IOException {
