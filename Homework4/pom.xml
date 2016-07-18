@@ -21,15 +21,15 @@
         <docker.container.name>homework4</docker.container.name>
         <job.executor.script.name>execute-job.sh</job.executor.script.name>
 
-        <file.name.to.copy.19>bid.20131019.txt.bz2</file.name.to.copy.19>
-        <file.name.to.copy.20>bid.20131020.txt.bz2</file.name.to.copy.20>
-        <file.name.to.copy.21>bid.20131021.txt.bz2</file.name.to.copy.21>
-        <file.name.to.copy.22>bid.20131022.txt.bz2</file.name.to.copy.22>
-        <file.name.to.copy.23>bid.20131023.txt.bz2</file.name.to.copy.23>
-        <file.name.to.copy.24>bid.20131024.txt.bz2</file.name.to.copy.24>
-        <file.name.to.copy.25>bid.20131025.txt.bz2</file.name.to.copy.25>
-        <file.name.to.copy.26>bid.20131026.txt.bz2</file.name.to.copy.26>
-        <file.name.to.copy.27>bid.20131027.txt.bz2</file.name.to.copy.27>
+        <file.name.to.copy.19>imp.20131019.txt.bz2</file.name.to.copy.19>
+        <file.name.to.copy.20>imp.20131020.txt.bz2</file.name.to.copy.20>
+        <file.name.to.copy.21>imp.20131021.txt.bz2</file.name.to.copy.21>
+        <file.name.to.copy.22>imp.20131022.txt.bz2</file.name.to.copy.22>
+        <file.name.to.copy.23>imp.20131023.txt.bz2</file.name.to.copy.23>
+        <file.name.to.copy.24>imp.20131024.txt.bz2</file.name.to.copy.24>
+        <file.name.to.copy.25>imp.20131025.txt.bz2</file.name.to.copy.25>
+        <file.name.to.copy.26>imp.20131026.txt.bz2</file.name.to.copy.26>
+        <file.name.to.copy.27>imp.20131027.txt.bz2</file.name.to.copy.27>
     </properties>
 
     <dependencies>
