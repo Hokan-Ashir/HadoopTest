@@ -11,5 +11,143 @@
 
     <artifactId>Homework5</artifactId>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <hadoop.version>2.5.1</hadoop.version>
 
+        <remote.host.ip>10.16.10.109</remote.host.ip>
+        <remote.host.name>root</remote.host.name>
+        <remote.host.password>12345678</remote.host.password>
+        <docker.container.name>homework5</docker.container.name>
+        <job.executor.script.name>execute-job.sh</job.executor.script.name>
+    </properties>
+
+    <dependencies>
+        <!-- Hadoop main client artifact -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>homework-5</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <outputDirectory>${basedir}</outputDirectory>
+                </configuration>
+            </plugin>
+
+            <!--Solution to place compiled jar into virtual host FS taken from-->
+            <!--https://jarirajari.wordpress.com/2014/06/11/copy-files-and-execute-command-on-a-remote-host-with-maven-antrun-plugin-without-ant-using-ssh-and-scp/-->
+            <plugin>
+                <inherited>false</inherited>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target name="hadoop run" description="how to get antrun plugin to work with SCP and SSH">
+
+                                <echo message="Starting Docker service ..." />
+                                <sshexec trust="true" failonerror="true"
+                                         host="${remote.host.ip}"
+                                         username="${remote.host.name}"
+                                         password="${remote.host.password}"
+                                         command="service docker start"
+                                         timeout="120000"
+                                         usepty="true"
+                                />
+                                <echo message="Docker service started" />
+
+                                <echo message="Coping compiled jar: ${project.build.finalName} ..." />
+                                <scp trust="true" failonerror="true" verbose="off" sftp="true"
+                                     file="./${project.build.finalName}.jar"
+                                     todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
+                                <echo message="Coping compiled jar: ${project.build.finalName} completed" />
+
+                                <echo message="Coping execute job file: ${job.executor.script.name} ..." />
+                                <scp trust="true" failonerror="true" verbose="off" sftp="true"
+                                     file="./${job.executor.script.name}"
+                                     todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
+                                <echo message="Coping execute job file: ${job.executor.script.name} completed" />
+
+                                <echo message="Changing rights to copied files ..." />
+                                <sshexec trust="true" failonerror="true"
+                                         host="${remote.host.ip}"
+                                         username="${remote.host.name}"
+                                         password="${remote.host.password}"
+                                         command="chmod -R 777 /root"
+                                         timeout="120000"
+                                         usepty="true"
+                                />
+                                <echo message="Changing rights to copied files complete" />
+
+                                <echo message="Running hadoop cluster in demon mode ..." />
+                                <sshexec trust="true" failonerror="true"
+                                         host="${remote.host.ip}"
+                                         username="${remote.host.name}"
+                                         password="${remote.host.password}"
+                                         command="docker run -d -it -v $PWD:/opt --name ${docker.container.name} sequenceiq/hadoop-docker:2.7.1"
+                                         timeout="120000"
+                                         usepty="true"
+                                />
+                                <!--/etc/bootstrap.sh -bash-->
+                                <echo message="Hadoop cluster in demon mode is running" />
+
+                                <!--TODO add \r\n -> \n sed script removal in case of emergency moving from Win to Linux and wondering WTF?-->
+                                <!--sed -i -e 's/\r$//' create_mgw_3shelf_6xIPNI1P.sh-->
+
+                                <echo message="Running hdfs job ..." />
+                                <sshexec trust="true" failonerror="true"
+                                         host="${remote.host.ip}"
+                                         username="${remote.host.name}"
+                                         password="${remote.host.password}"
+                                         command="docker exec ${docker.container.name} /opt/${job.executor.script.name}"/>
+                                <echo message="Running hdfs job complete" />
+
+                                <!--TODO add clean up, on virtual box host-->
+
+                                <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp">
+                                    <classpath refid="maven.plugin.classpath" />
+                                </taskdef>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>ant</groupId>
+                        <artifactId>ant-commons-net</artifactId>
+                        <version>1.6.5</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant-jsch</artifactId>
+                        <version>1.9.1</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
 </project>

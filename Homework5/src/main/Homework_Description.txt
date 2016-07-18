@@ -1,0 +1,6 @@
+Write your own YARN Applications with a web page in ApplicationMaster container and container allocation for some computations* by click on button on the page (use for this YARN API, no Tez, no Slider);
+o	https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/WritingYarnApplications.html
+o	https://spring.io/guides/gs/yarn-basic/
+       *Computations could include sorting of large array with 1 000 000 000 integer items
+
+      Please provide ability to change several allocated resources (RAM, priority, number of containers and etc) on the web page and don’t forget logger for all your actions
