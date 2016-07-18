@@ -2,29 +2,47 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
+    <artifactId>gs-yarn-basic-dist</artifactId>
+
     <parent>
-        <artifactId>hadoop-test</artifactId>
         <groupId>ru.hokan</groupId>
         <version>1.0-SNAPSHOT</version>
+        <artifactId>Homework5</artifactId>
     </parent>
-
-    <artifactId>Homework5</artifactId>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>gs-yarn-basic-container</module>
-        <module>gs-yarn-basic-appmaster</module>
-        <module>gs-yarn-basic-client</module>
-        <module>gs-yarn-basic-dist</module>
-    </modules>
 
     <dependencies>
         <dependency>
+            <groupId>ru.hokan</groupId>
+            <artifactId>gs-yarn-basic-client</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.hokan</groupId>
+            <artifactId>gs-yarn-basic-appmaster</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.hokan</groupId>
+            <artifactId>gs-yarn-basic-container</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.data</groupId>
-            <artifactId>spring-yarn-boot</artifactId>
+            <artifactId>spring-yarn-boot-test</artifactId>
             <version>2.2.0.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>1.2.1</version>
         </dependency>
     </dependencies>
 
@@ -45,25 +63,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <repositories>
-        <repository>
-            <id>spring-release</id>
-            <url>http://repo.spring.io/libs-release</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>spring-release</id>
-            <url>http://repo.spring.io/libs-release</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
 
 </project>
