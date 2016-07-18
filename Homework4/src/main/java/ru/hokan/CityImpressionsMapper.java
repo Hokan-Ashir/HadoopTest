@@ -7,9 +7,8 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-public class CityImpressionsMapper extends Mapper<LongWritable, Text, RegionCityWritable, IntWritable> {
+public class CityImpressionsMapper extends Mapper<LongWritable, Text, IntWritable, IntWritable> {
 
-    private static final int POSITION_REGION = 6;
     private static final int POSITION_CITY = 7;
 
     /**
@@ -20,11 +19,9 @@ public class CityImpressionsMapper extends Mapper<LongWritable, Text, RegionCity
             throws IOException, InterruptedException {
         String input = valueIn.toString();
         String[] split = input.split("\\t");
-        String region = split[POSITION_REGION];
         String city = split[POSITION_CITY];
-        Integer regionValue = Integer.valueOf(region);
         Integer cityValue = Integer.valueOf(city);
 
-        context.write(new RegionCityWritable(regionValue, cityValue), new IntWritable(1));
+        context.write(new IntWritable(cityValue), new IntWritable(1));
     }
 }

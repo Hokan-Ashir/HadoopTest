@@ -6,13 +6,13 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
 
-public class CityImpressionsCombiner extends Reducer<RegionCityWritable, IntWritable, RegionCityWritable, IntWritable> {
+public class CityImpressionsCombiner extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void reduce(RegionCityWritable keyIn, Iterable<IntWritable> valuesIn, Context context)
+    public void reduce(IntWritable keyIn, Iterable<IntWritable> valuesIn, Context context)
             throws IOException, InterruptedException {
 
         Integer totalNumberOfImpressions = 0;

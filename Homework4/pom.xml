@@ -30,6 +30,8 @@
         <file.name.to.copy.25>imp.20131025.txt.bz2</file.name.to.copy.25>
         <file.name.to.copy.26>imp.20131026.txt.bz2</file.name.to.copy.26>
         <file.name.to.copy.27>imp.20131027.txt.bz2</file.name.to.copy.27>
+
+        <file.name.to.copy.city.codes>city.en.txt</file.name.to.copy.city.codes>
     </properties>
 
     <dependencies>
@@ -167,6 +169,12 @@
                                      file="${basedir}/src/main/data/${file.name.to.copy.27}"
                                      todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
                                 <echo message="Coping ${file.name.to.copy.27} completed" />
+
+                                <echo message="Coping ${file.name.to.copy.city.codes} ..." />
+                                <scp trust="true" failonerror="true" verbose="off" sftp="true"
+                                     file="${basedir}/src/main/data/${file.name.to.copy.city.codes}"
+                                     todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
+                                <echo message="Coping ${file.name.to.copy.city.codes} completed" />
 
                                 <echo message="Changing rights to copied files ..." />
                                 <sshexec trust="true" failonerror="true"

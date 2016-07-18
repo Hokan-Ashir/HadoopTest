@@ -15,6 +15,8 @@ import org.apache.hadoop.util.ToolRunner;
 
 public class CityImpressionsCounter extends Configured implements Tool {
 
+    public static final String HOSTNAME_HDFS_ENV_VALUE = "HOSTNAME";
+
     public static void main(String[] args) throws Exception {
         if (args.length != 2) {
             System.out.println("Usage: <inDir> <outDir>");
@@ -32,7 +34,9 @@ public class CityImpressionsCounter extends Configured implements Tool {
     @Override
     public int run(String[] args) throws Exception {
         Configuration config = new Configuration();
-        config.setInt(NLineInputFormat.LINES_PER_MAP, 50000);
+        String hostname = System.getenv(HOSTNAME_HDFS_ENV_VALUE);
+        config.set(HOSTNAME_HDFS_ENV_VALUE, hostname);
+        config.setInt(NLineInputFormat.LINES_PER_MAP, 70000);
 
         Job job = Job.getInstance(config);
         job.setJarByClass(CityImpressionsCounter.class);
@@ -45,7 +49,7 @@ public class CityImpressionsCounter extends Configured implements Tool {
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-        job.setMapOutputKeyClass(RegionCityWritable.class);
+        job.setMapOutputKeyClass(IntWritable.class);
         job.setMapOutputValueClass(IntWritable.class);
 
         job.setMapperClass(CityImpressionsMapper.class);

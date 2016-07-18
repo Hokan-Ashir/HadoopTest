@@ -1,0 +1,16 @@
+•	Download the data set (http://goo.gl/lwgoxw); (Data description http://contest.ipinyou.com/data.shtml)
+•	Unzip these files and put them in HDFS system and make screenshot #1 of HDFS files:
+o	imp.20131019.txt.bz2
+o	imp.20131020.txt.bz2
+o	imp.20131021.txt.bz2
+o	imp.20131022.txt.bz2
+o	imp.20131023.txt.bz2
+o	imp.20131024.txt.bz2
+o	imp.20131025.txt.bz2
+o	imp.20131026.txt.bz2
+o	imp.20131027.txt.bz2
+•	Calculate amount of high-bid-priced (more than 250) impression events by city
+•	Print result where each city presented with its name rather than id
+•	Make screenshot of execution #2 and results #3 from HDFS
+•	Add Custom Partitioner by OperationSystemType
+•	Run with several reducers and make screenshot of successful job #4 and results from HDFS #5
