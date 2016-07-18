@@ -50,8 +50,8 @@ public class CityImpressionsCounter extends Configured implements Tool {
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-        job.setMapOutputKeyClass(OSTypeCityIdWritable.class);
-        job.setMapOutputValueClass(IntWritable.class);
+        job.setMapOutputKeyClass(IntWritable.class);
+        job.setMapOutputValueClass(OSTypeCityIdWritable.class);
 
         job.setMapperClass(CityImpressionsMapper.class);
         job.setReducerClass(CityImpressionsReducer.class);

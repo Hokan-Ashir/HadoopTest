@@ -6,20 +6,20 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
 
-public class CityImpressionsCombiner extends Reducer<OSTypeCityIdWritable, IntWritable, OSTypeCityIdWritable, IntWritable> {
+public class CityImpressionsCombiner extends Reducer<IntWritable, OSTypeCityIdWritable, IntWritable, OSTypeCityIdWritable> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void reduce(OSTypeCityIdWritable keyIn, Iterable<IntWritable> valuesIn, Context context)
+    public void reduce(IntWritable keyIn, Iterable<OSTypeCityIdWritable> valuesIn, Context context)
             throws IOException, InterruptedException {
 
         Integer totalNumberOfImpressions = 0;
-        for (IntWritable value : valuesIn) {
-            totalNumberOfImpressions += value.get();
+        for (OSTypeCityIdWritable value : valuesIn) {
+            totalNumberOfImpressions += value.getNumberOfImpressions();
         }
 
-        context.write(keyIn, new IntWritable(totalNumberOfImpressions));
+        context.write(keyIn, new OSTypeCityIdWritable("", totalNumberOfImpressions));
     }
 }

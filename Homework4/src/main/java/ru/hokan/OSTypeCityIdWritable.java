@@ -1,7 +1,6 @@
 package ru.hokan;
 
 import org.apache.hadoop.classification.InterfaceAudience;
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.WritableComparable;
 
 import java.io.DataInput;
@@ -12,22 +11,22 @@ import java.io.IOException;
 public class OSTypeCityIdWritable implements WritableComparable<OSTypeCityIdWritable> {
 
     private String osTypeName;
-    private Integer cityId;
+    private Integer numberOfImpressions;
 
     public OSTypeCityIdWritable() {
     }
 
-    public OSTypeCityIdWritable(String osTypeName, int cityId) {
+    public OSTypeCityIdWritable(String osTypeName, int numberOfImpressions) {
         this.osTypeName = osTypeName;
-        this.cityId = cityId;
+        this.numberOfImpressions = numberOfImpressions;
     }
 
     public String getOsTypeName() {
         return osTypeName;
     }
 
-    public Integer getCityId() {
-        return cityId;
+    public Integer getNumberOfImpressions() {
+        return numberOfImpressions;
     }
 
     /**
@@ -36,9 +35,9 @@ public class OSTypeCityIdWritable implements WritableComparable<OSTypeCityIdWrit
     @Override
     public int compareTo(OSTypeCityIdWritable o) {
         String thisOsNameValue = this.osTypeName;
-        Integer thisCityIdValue = this.cityId;
+        Integer thisCityIdValue = this.numberOfImpressions;
         String thatOsNameValue = o.osTypeName;
-        Integer thatCityIdValue = o.cityId;
+        Integer thatCityIdValue = o.numberOfImpressions;
 
         int osNameCompare = thisOsNameValue.compareTo(thatOsNameValue);
         int cityIdCompare = thisCityIdValue.compareTo(thatCityIdValue);
@@ -55,29 +54,9 @@ public class OSTypeCityIdWritable implements WritableComparable<OSTypeCityIdWrit
      * {@inheritDoc}
      */
     @Override
-    public int hashCode() {
-        return cityId.hashCode();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof OSTypeCityIdWritable)) {
-            return false;
-        }
-        OSTypeCityIdWritable other = (OSTypeCityIdWritable)obj;
-        return this.cityId.equals(other.cityId);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void write(DataOutput dataOutput) throws IOException {
         dataOutput.writeUTF(osTypeName);
-        dataOutput.writeInt(cityId);
+        dataOutput.writeInt(numberOfImpressions);
     }
 
     /**
@@ -86,6 +65,6 @@ public class OSTypeCityIdWritable implements WritableComparable<OSTypeCityIdWrit
     @Override
     public void readFields(DataInput dataInput) throws IOException {
         osTypeName = dataInput.readUTF();
-        cityId = dataInput.readInt();
+        numberOfImpressions = dataInput.readInt();
     }
 }

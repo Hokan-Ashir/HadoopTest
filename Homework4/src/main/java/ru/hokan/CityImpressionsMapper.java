@@ -8,7 +8,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-public class CityImpressionsMapper extends Mapper<LongWritable, Text, OSTypeCityIdWritable, IntWritable> {
+public class CityImpressionsMapper extends Mapper<LongWritable, Text, IntWritable, OSTypeCityIdWritable> {
 
     private static final int POSITION_CITY = 7;
 
@@ -26,6 +26,6 @@ public class CityImpressionsMapper extends Mapper<LongWritable, Text, OSTypeCity
         UserAgent userAgent = UserAgent.parseUserAgentString(input);
         String osName = userAgent.getOperatingSystem().getName();
 
-        context.write(new OSTypeCityIdWritable(osName, cityValue), new IntWritable(1));
+        context.write(new IntWritable(cityValue), new OSTypeCityIdWritable(osName, 1));
     }
 }
