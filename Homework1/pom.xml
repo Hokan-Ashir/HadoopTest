@@ -88,7 +88,7 @@
 
                                 <echo message="Coping execute job file: ${job.executor.script.name} ..." />
                                 <scp trust="true" failonerror="true" verbose="off" sftp="true"
-                                     file="./execute-job.sh"
+                                     file="./${job.executor.script.name}"
                                      todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
                                 <echo message="Coping execute job file: ${job.executor.script.name} completed" />
 
@@ -135,7 +135,7 @@
                                          host="${remote.host.ip}"
                                          username="${remote.host.name}"
                                          password="${remote.host.password}"
-                                         command="docker exec ${docker.container.name} /opt/execute-job.sh"/>
+                                         command="docker exec ${docker.container.name} /opt/${job.executor.script.name}"/>
                                 <echo message="Running hadoop job complete" />
 
                                 <!--TODO add clean up, on virtual box host-->
