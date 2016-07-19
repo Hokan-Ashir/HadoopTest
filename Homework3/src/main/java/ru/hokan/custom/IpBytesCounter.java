@@ -50,7 +50,7 @@ public class IpBytesCounter extends Configured implements Tool {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
         job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(AverageTotalBytesWritable.class);
+        job.setMapOutputValueClass(CountTotalBytesWritable.class);
 
         job.setMapperClass(IpDataCountMapper.class);
         job.setReducerClass(IpDataCountReducer.class);

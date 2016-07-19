@@ -5,23 +5,22 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
 
-public class IpDataCountCombiner extends Reducer<Text, AverageTotalBytesWritable, Text, AverageTotalBytesWritable> {
+public class IpDataCountCombiner extends Reducer<Text, CountTotalBytesWritable, Text, CountTotalBytesWritable> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void reduce(Text keyIn, Iterable<AverageTotalBytesWritable> valuesIn, Context context)
+    public void reduce(Text keyIn, Iterable<CountTotalBytesWritable> valuesIn, Context context)
             throws IOException, InterruptedException {
 
         Integer totalNumberOfBytes = 0;
         int numberOfValues = 0;
-        for (AverageTotalBytesWritable writable : valuesIn) {
+        for (CountTotalBytesWritable writable : valuesIn) {
             totalNumberOfBytes += writable.getTotalValue();
             numberOfValues++;
         }
 
-        float averageNumberOfBytes = (float) totalNumberOfBytes / numberOfValues;
-        context.write(keyIn, new AverageTotalBytesWritable(averageNumberOfBytes, totalNumberOfBytes));
+        context.write(keyIn, new CountTotalBytesWritable(numberOfValues, totalNumberOfBytes));
     }
 }
