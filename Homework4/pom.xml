@@ -261,10 +261,9 @@
                                         true
                                     </minimizeJar>
                                     <artifactSet>
-                                        <excludes>
-                                            <exclude>org.apache.mrunit:mrunit</exclude>
-                                            <exclude>org.apache.hadoop:*</exclude>
-                                        </excludes>
+                                        <includes>
+                                            <include>eu.bitwalker:*</include>
+                                        </includes>
                                     </artifactSet>
                                 </configuration>
                             </execution>
