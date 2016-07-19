@@ -28,6 +28,21 @@
         </dependency>
     </dependencies>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <hadoop.version>2.5.1</hadoop.version>
+
+        <remote.host.ip>10.16.10.109</remote.host.ip>
+        <remote.host.name>root</remote.host.name>
+        <remote.host.password>12345678</remote.host.password>
+        <docker.container.name>homework5</docker.container.name>
+        <job.executor.script.name>execute-job.sh</job.executor.script.name>
+
+        <container.module.name>gs-yarn-basic-container</container.module.name>
+        <app.master.module.name>gs-yarn-basic-appmaster</app.master.module.name>
+        <client.module.name>gs-yarn-basic-client</client.module.name>
+    </properties>
+
     <build>
         <plugins>
             <plugin>

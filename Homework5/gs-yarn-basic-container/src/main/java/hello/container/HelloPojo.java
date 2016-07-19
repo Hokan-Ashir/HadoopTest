@@ -19,7 +19,7 @@ public class HelloPojo {
 
     @OnContainerStart
     public void publicVoidNoArgsMethod() throws Exception {
-        log.info("Hello from HelloPojo");
+        log.info("Hello from HelloPojo!");
         log.info("About to list from hdfs root content");
 
         FsShell shell = new FsShell(configuration);
