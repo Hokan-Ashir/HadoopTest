@@ -9,6 +9,8 @@ import org.apache.hadoop.mapreduce.Reducer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CityImpressionsReducer extends Reducer<IntWritable, OSTypeCityIdWritable, Text, Text> {
 
@@ -16,6 +18,30 @@ public class CityImpressionsReducer extends Reducer<IntWritable, OSTypeCityIdWri
     private static final int CITY_KEY_IN_FILE_POSITION = 0;
     private static final int CITY_NAME_IN_FILE_POSITION = 1;
     private static final int LIMIT_IMPRESSIONS_COUNT = 250;
+
+    private Map<Integer, String> cityIdToNameMap = new HashMap<Integer, String>();
+
+    @Override
+    protected void setup(Context context) throws IOException, InterruptedException {
+        String hostName = context.getConfiguration().get(CityImpressionsCounter.HOSTNAME_HDFS_ENV_VALUE);
+        Path path = new Path("hdfs://" + hostName + ":9000/" + CITY_FILE_NAME);
+        FileSystem fileSystem = FileSystem.get(context.getConfiguration());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(fileSystem.open(path)));
+        try {
+            String line;
+            line = reader.readLine();
+            while (line != null) {
+                String[] split = line.split("\\t");
+                String cityKeyInFileString = split[CITY_KEY_IN_FILE_POSITION];
+                Integer cityKeyInFile = Integer.valueOf(cityKeyInFileString);
+                String cityName = split[CITY_NAME_IN_FILE_POSITION];
+                cityIdToNameMap.put(cityKeyInFile, cityName);
+                line = reader.readLine();
+            }
+        } finally {
+            reader.close();
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -33,33 +59,15 @@ public class CityImpressionsReducer extends Reducer<IntWritable, OSTypeCityIdWri
             return;
         }
 
-        String cityName = getCityName(context, keyIn.get());
+        String cityName = getCityName(keyIn.get());
         context.write(new Text(cityName), new Text(totalNumberOfImpressions.toString()));
     }
 
-    private String getCityName(Context context, int cityKey) throws IOException {
-        String hostName = context.getConfiguration().get(CityImpressionsCounter.HOSTNAME_HDFS_ENV_VALUE);
-        Path path = new Path("hdfs://" + hostName + ":9000/" + CITY_FILE_NAME);
-        FileSystem fileSystem = FileSystem.get(context.getConfiguration());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(fileSystem.open(path)));
-        String result = "";
-        try {
-            String line;
-            line = reader.readLine();
-            while (line != null) {
-                String[] split = line.split("\\t");
-                String cityKeyInFileString = split[CITY_KEY_IN_FILE_POSITION];
-                Integer cityKeyInFile = Integer.valueOf(cityKeyInFileString);
-                if (cityKeyInFile.equals(cityKey)) {
-                    return split[CITY_NAME_IN_FILE_POSITION];
-                } else {
-                    line = reader.readLine();
-                }
-            }
-        } finally {
-            reader.close();
+    private String getCityName(int cityKey) throws IOException {
+        if (cityIdToNameMap.containsKey(cityKey)) {
+            return cityIdToNameMap.get(cityKey);
+        } else {
+            return "";
         }
-
-        return result;
     }
 }

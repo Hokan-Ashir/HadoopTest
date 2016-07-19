@@ -21,7 +21,8 @@ TODO
     filter by bid price field in mapper (or, as other variant, in reducer)
     choose 20th commit as right decision for partitioning
     remake "compareTo" method in OSTypeCityIdWritable, for sequential comparing
-    get list of city-to-name map in "setup" method or inner map just plain copy-&-paste in java plain code
+    DONE: get list of city-to-name map in "setup" method,
+     TRY: or inner map just plain copy-&-paste in java plain code
 
  - HW5
     ?????
