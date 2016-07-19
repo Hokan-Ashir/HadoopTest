@@ -1,5 +1,4 @@
 TODO
-Common - separate SCP/SH to Virtual host to Docker to HDFS from "clean install" MAVEN process. Via phases i.e.
  - HW1
     rewrite using NLineProcessor, MR-matching in other way to increase speed
 
