@@ -10,6 +10,7 @@
         <version>1.2.3.RELEASE</version>
     </parent>
 
+    <groupId>ru.hokan</groupId>
     <artifactId>Homework5</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -18,35 +19,20 @@
         <module>gs-yarn-basic-container</module>
         <module>gs-yarn-basic-appmaster</module>
         <module>gs-yarn-basic-client</module>
+        <module>gs-yarn-basic-dist</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-yarn-boot</artifactId>
-            <version>2.2.0.RELEASE</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ru.hokan</groupId>
-            <artifactId>gs-yarn-basic-client</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>ru.hokan</groupId>
-            <artifactId>gs-yarn-basic-appmaster</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>ru.hokan</groupId>
-            <artifactId>gs-yarn-basic-container</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>2.4.0.RELEASE</version>
         </dependency>
     </dependencies>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version>2.5.1</hadoop.version>
+        <!--<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
+        <!--<hadoop.version>2.5.1</hadoop.version>-->
 
         <remote.host.ip>10.16.10.109</remote.host.ip>
         <remote.host.name>root</remote.host.name>
@@ -57,134 +43,26 @@
         <container.module.name>gs-yarn-basic-container</container.module.name>
         <app.master.module.name>gs-yarn-basic-appmaster</app.master.module.name>
         <client.module.name>gs-yarn-basic-client</client.module.name>
-
-        <file.path.to.copy.yarn.container>${project.basedir}/${container.module.name}/target/</file.path.to.copy.yarn.container>
-        <file.name.to.copy.yarn.container>${container.module.name}-${project.version}.jar</file.name.to.copy.yarn.container>
-        <file.path.to.copy.yarn.client>${project.basedir}/${client.module.name}/target/</file.path.to.copy.yarn.client>
-        <file.name.to.copy.yarn.client>${client.module.name}-${project.version}.jar</file.name.to.copy.yarn.client>
-        <file.path.to.copy.yarn.app.master>${project.basedir}/${app.master.module.name}/target/</file.path.to.copy.yarn.app.master>
-        <file.name.to.copy.yarn.app.master>${app.master.module.name}-${project.version}.jar</file.name.to.copy.yarn.app.master>
+        <dist.module.name>gs-yarn-basic-dist</dist.module.name>
     </properties>
 
-    <profiles>
-        <profile>
-            <id>docker</id>
-            <build>
-                <plugins>
-                    <!--Solution to place compiled jar into virtual host FS taken from-->
-                    <!--https://jarirajari.wordpress.com/2014/06/11/copy-files-and-execute-command-on-a-remote-host-with-maven-antrun-plugin-without-ant-using-ssh-and-scp/-->
-                    <plugin>
-                        <inherited>false</inherited>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>test</id>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target name="hadoop run" description="how to get antrun plugin to work with SCP and SSH">
-
-                                        <echo message="Starting Docker service ..." />
-                                        <sshexec trust="true" failonerror="true"
-                                                 host="${remote.host.ip}"
-                                                 username="${remote.host.name}"
-                                                 password="${remote.host.password}"
-                                                 command="service docker start"
-                                                 timeout="120000"
-                                                 usepty="true"
-                                        />
-                                        <echo message="Docker service started" />
-
-                                        <!--Coping jar files-->
-                                        <echo message="Coping ${file.name.to.copy.yarn.container} ..." />
-                                        <scp trust="true" failonerror="true" verbose="off" sftp="true"
-                                             file="${file.path.to.copy.yarn.container}/${file.name.to.copy.yarn.container}"
-                                             todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
-                                        <echo message="Coping ${file.name.to.copy.yarn.container} completed" />
-
-                                        <echo message="Coping ${file.name.to.copy.yarn.app.master} ..." />
-                                        <scp trust="true" failonerror="true" verbose="off" sftp="true"
-                                             file="${file.path.to.copy.yarn.app.master}/${file.name.to.copy.yarn.app.master}"
-                                             todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
-                                        <echo message="Coping ${file.name.to.copy.yarn.app.master} completed" />
-
-                                        <echo message="Coping ${file.name.to.copy.yarn.client} ..." />
-                                        <scp trust="true" failonerror="true" verbose="off" sftp="true"
-                                             file="${file.path.to.copy.yarn.client}/${file.name.to.copy.yarn.client}"
-                                             todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
-                                        <echo message="Coping ${file.name.to.copy.yarn.client} completed" />
-
-                                        <!--Coping job executor script -->
-                                        <echo message="Coping execute job file: ${job.executor.script.name} ..." />
-                                        <scp trust="true" failonerror="true" verbose="off" sftp="true"
-                                             file="./${job.executor.script.name}"
-                                             todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
-                                        <echo message="Coping execute job file: ${job.executor.script.name} completed" />
-
-                                        <echo message="Changing rights to copied files ..." />
-                                        <sshexec trust="true" failonerror="true"
-                                                 host="${remote.host.ip}"
-                                                 username="${remote.host.name}"
-                                                 password="${remote.host.password}"
-                                                 command="chmod -R 777 /root"
-                                                 timeout="120000"
-                                                 usepty="true"
-                                        />
-                                        <echo message="Changing rights to copied files complete" />
-
-                                        <echo message="Running hadoop cluster in demon mode ..." />
-                                        <sshexec trust="true" failonerror="true"
-                                                 host="${remote.host.ip}"
-                                                 username="${remote.host.name}"
-                                                 password="${remote.host.password}"
-                                                 command="docker run -d -it -v $PWD:/opt --name ${docker.container.name} sequenceiq/hadoop-docker:2.7.1"
-                                                 timeout="120000"
-                                                 usepty="true"
-                                        />
-                                        <!--/etc/bootstrap.sh -bash-->
-                                        <echo message="Hadoop cluster in demon mode is running" />
-
-                                        <!--TODO add \r\n -> \n sed script removal in case of emergency moving from Win to Linux and wondering WTF?-->
-                                        <!--sed -i -e 's/\r$//' create_mgw_3shelf_6xIPNI1P.sh-->
-
-                                        <echo message="Running hdfs job ..." />
-                                        <sshexec trust="true" failonerror="true"
-                                                 host="${remote.host.ip}"
-                                                 username="${remote.host.name}"
-                                                 password="${remote.host.password}"
-                                                 command="docker exec ${docker.container.name} /opt/${job.executor.script.name}"/>
-                                        <echo message="Running hdfs job complete" />
-
-                                        <!--TODO add clean up, on virtual box host-->
-
-                                        <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp">
-                                            <classpath refid="maven.plugin.classpath" />
-                                        </taskdef>
-                                    </target>
-                                </configuration>
-                            </execution>
-                        </executions>
-                        <dependencies>
-                            <dependency>
-                                <groupId>ant</groupId>
-                                <artifactId>ant-commons-net</artifactId>
-                                <version>1.6.5</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.apache.ant</groupId>
-                                <artifactId>ant-jsch</artifactId>
-                                <version>1.9.1</version>
-                            </dependency>
-                        </dependencies>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <repositories>
         <repository>
