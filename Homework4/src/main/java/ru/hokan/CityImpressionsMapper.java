@@ -8,9 +8,11 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-public class CityImpressionsMapper extends Mapper<LongWritable, Text, IntWritable, OSTypeCityIdWritable> {
+public class CityImpressionsMapper extends Mapper<LongWritable, Text, OSTypeCityIdWritable, IntWritable> {
 
     private static final int POSITION_CITY = 7;
+    private static final int POSITION_BID_PRICE = 19;
+    private static final int LIMIT_BID_PRICE_COUNT = 250;
 
     /**
      * {@inheritDoc}
@@ -20,12 +22,17 @@ public class CityImpressionsMapper extends Mapper<LongWritable, Text, IntWritabl
             throws IOException, InterruptedException {
         String input = valueIn.toString();
         String[] split = input.split("\\t");
+        String bidPrice = split[POSITION_BID_PRICE];
+        if (Integer.valueOf(bidPrice) < LIMIT_BID_PRICE_COUNT) {
+            return;
+        }
+
         String city = split[POSITION_CITY];
         Integer cityValue = Integer.valueOf(city);
 
         UserAgent userAgent = UserAgent.parseUserAgentString(input);
         String osName = userAgent.getOperatingSystem().getName();
 
-        context.write(new IntWritable(cityValue), new OSTypeCityIdWritable(osName, 1));
+        context.write(new OSTypeCityIdWritable(osName, cityValue), new IntWritable(1));
     }
 }

@@ -12,12 +12,11 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CityImpressionsReducer extends Reducer<IntWritable, OSTypeCityIdWritable, Text, Text> {
+public class CityImpressionsReducer extends Reducer<OSTypeCityIdWritable, IntWritable, Text, Text> {
 
     private static final String CITY_FILE_NAME = "city.en.txt";
     private static final int CITY_KEY_IN_FILE_POSITION = 0;
     private static final int CITY_NAME_IN_FILE_POSITION = 1;
-    private static final int LIMIT_IMPRESSIONS_COUNT = 250;
 
     private Map<Integer, String> cityIdToNameMap = new HashMap<Integer, String>();
 
@@ -47,19 +46,15 @@ public class CityImpressionsReducer extends Reducer<IntWritable, OSTypeCityIdWri
      * {@inheritDoc}
      */
     @Override
-    public void reduce(IntWritable keyIn, Iterable<OSTypeCityIdWritable> valuesIn, Context context)
+    public void reduce(OSTypeCityIdWritable keyIn, Iterable<IntWritable> valuesIn, Context context)
             throws IOException, InterruptedException {
 
         Integer totalNumberOfImpressions = 0;
-        for (OSTypeCityIdWritable value : valuesIn) {
-            totalNumberOfImpressions += value.getNumberOfImpressions();
+        for (IntWritable value : valuesIn) {
+            totalNumberOfImpressions += value.get();
         }
 
-        if (totalNumberOfImpressions < LIMIT_IMPRESSIONS_COUNT) {
-            return;
-        }
-
-        String cityName = getCityName(keyIn.get());
+        String cityName = getCityName(keyIn.getCityId());
         context.write(new Text(cityName), new Text(totalNumberOfImpressions.toString()));
     }
 

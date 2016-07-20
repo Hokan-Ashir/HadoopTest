@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>hadoop-test</artifactId>
@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hadoop.version>2.5.1</hadoop.version>
 
-        <remote.host.ip>10.16.10.109</remote.host.ip>
+        <remote.host.ip>192.168.3.221</remote.host.ip>
         <remote.host.name>root</remote.host.name>
         <remote.host.password>12345678</remote.host.password>
         <docker.container.name>homework4</docker.container.name>

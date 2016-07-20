@@ -15,8 +15,8 @@ import org.apache.hadoop.util.ToolRunner;
 
 public class CityImpressionsCounter extends Configured implements Tool {
 
-    private static final int NUMBER_OF_REDUCERS = 3;
     public static final String HOSTNAME_HDFS_ENV_VALUE = "HOSTNAME";
+    private static final int NUMBER_OF_REDUCERS = 3;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 2) {
@@ -50,8 +50,8 @@ public class CityImpressionsCounter extends Configured implements Tool {
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-        job.setMapOutputKeyClass(IntWritable.class);
-        job.setMapOutputValueClass(OSTypeCityIdWritable.class);
+        job.setMapOutputKeyClass(OSTypeCityIdWritable.class);
+        job.setMapOutputValueClass(IntWritable.class);
 
         job.setMapperClass(CityImpressionsMapper.class);
         job.setReducerClass(CityImpressionsReducer.class);
