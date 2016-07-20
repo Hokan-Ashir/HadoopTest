@@ -34,16 +34,7 @@ public class OSTypeCityIdWritable implements WritableComparable<OSTypeCityIdWrit
      */
     @Override
     public int compareTo(OSTypeCityIdWritable o) {
-        String thisOsNameValue = this.osTypeName;
-        String thatOsNameValue = o.osTypeName;
-        int osNameCompare = thisOsNameValue.compareTo(thatOsNameValue);
-        if (osNameCompare == 0) {
-            Integer thisCityIdValue = this.cityId;
-            Integer thatCityIdValue = o.cityId;
-            return thisCityIdValue.compareTo(thatCityIdValue);
-        }
-
-        return osNameCompare;
+        return cityId.compareTo(o.getCityId());
     }
 
     /**
