@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>hadoop-test</artifactId>
@@ -27,7 +27,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hadoop.version>2.5.1</hadoop.version>
 
-        <remote.host.ip>10.16.10.109</remote.host.ip>
+        <remote.host.ip>192.168.3.221</remote.host.ip>
         <remote.host.name>root</remote.host.name>
         <remote.host.password>12345678</remote.host.password>
         <docker.container.name>homework2</docker.container.name>
@@ -119,41 +119,41 @@
                                         <echo message="Coping execute job file: ${job.executor.script.name} completed" />
 
                                         <!--Coping data files-->
-                                        <echo message="Coping ${file.name.to.copy.june} ..." />
-                                        <scp trust="true" failonerror="true" verbose="off" sftp="true"
-                                             file="${basedir}/src/main/data/${file.name.to.copy.june}"
-                                             todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
-                                        <echo message="Coping ${file.name.to.copy.june} completed" />
+                                        <!--<echo message="Coping ${file.name.to.copy.june} ..." />-->
+                                        <!--<scp trust="true" failonerror="true" verbose="off" sftp="true"-->
+                                        <!--file="${basedir}/src/main/data/${file.name.to.copy.june}"-->
+                                        <!--todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />-->
+                                        <!--<echo message="Coping ${file.name.to.copy.june} completed" />-->
 
-                                        <echo message="Coping ${file.name.to.copy.july} ..." />
-                                        <scp trust="true" failonerror="true" verbose="off" sftp="true"
-                                             file="${basedir}/src/main/data/${file.name.to.copy.july}"
-                                             todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
-                                        <echo message="Coping ${file.name.to.copy.july} completed" />
+                                        <!--<echo message="Coping ${file.name.to.copy.july} ..." />-->
+                                        <!--<scp trust="true" failonerror="true" verbose="off" sftp="true"-->
+                                        <!--file="${basedir}/src/main/data/${file.name.to.copy.july}"-->
+                                        <!--todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />-->
+                                        <!--<echo message="Coping ${file.name.to.copy.july} completed" />-->
 
-                                        <echo message="Coping ${file.name.to.copy.august} ..." />
-                                        <scp trust="true" failonerror="true" verbose="off" sftp="true"
-                                             file="${basedir}/src/main/data/${file.name.to.copy.august}"
-                                             todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
-                                        <echo message="Coping ${file.name.to.copy.august} completed" />
+                                        <!--<echo message="Coping ${file.name.to.copy.august} ..." />-->
+                                        <!--<scp trust="true" failonerror="true" verbose="off" sftp="true"-->
+                                        <!--file="${basedir}/src/main/data/${file.name.to.copy.august}"-->
+                                        <!--todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />-->
+                                        <!--<echo message="Coping ${file.name.to.copy.august} completed" />-->
 
-                                        <echo message="Coping ${file.name.to.copy.september} ..." />
-                                        <scp trust="true" failonerror="true" verbose="off" sftp="true"
-                                             file="${basedir}/src/main/data/${file.name.to.copy.september}"
-                                             todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
-                                        <echo message="Coping ${file.name.to.copy.september} completed" />
+                                        <!--<echo message="Coping ${file.name.to.copy.september} ..." />-->
+                                        <!--<scp trust="true" failonerror="true" verbose="off" sftp="true"-->
+                                        <!--file="${basedir}/src/main/data/${file.name.to.copy.september}"-->
+                                        <!--todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />-->
+                                        <!--<echo message="Coping ${file.name.to.copy.september} completed" />-->
 
-                                        <echo message="Coping ${file.name.to.copy.october} ..." />
-                                        <scp trust="true" failonerror="true" verbose="off" sftp="true"
-                                             file="${basedir}/src/main/data/${file.name.to.copy.october}"
-                                             todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
-                                        <echo message="Coping ${file.name.to.copy.october} completed" />
+                                        <!--<echo message="Coping ${file.name.to.copy.october} ..." />-->
+                                        <!--<scp trust="true" failonerror="true" verbose="off" sftp="true"-->
+                                        <!--file="${basedir}/src/main/data/${file.name.to.copy.october}"-->
+                                        <!--todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />-->
+                                        <!--<echo message="Coping ${file.name.to.copy.october} completed" />-->
 
-                                        <echo message="Coping ${file.name.to.copy.november} ..." />
-                                        <scp trust="true" failonerror="true" verbose="off" sftp="true"
-                                             file="${basedir}/src/main/data/${file.name.to.copy.november}"
-                                             todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
-                                        <echo message="Coping ${file.name.to.copy.november} completed" />
+                                        <!--<echo message="Coping ${file.name.to.copy.november} ..." />-->
+                                        <!--<scp trust="true" failonerror="true" verbose="off" sftp="true"-->
+                                        <!--file="${basedir}/src/main/data/${file.name.to.copy.november}"-->
+                                        <!--todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />-->
+                                        <!--<echo message="Coping ${file.name.to.copy.november} completed" />-->
 
                                         <echo message="Coping ${file.name.to.copy.december} ..." />
                                         <scp trust="true" failonerror="true" verbose="off" sftp="true"

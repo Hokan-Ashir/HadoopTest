@@ -1,21 +1,14 @@
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocatedFileStatus;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.log4j.Logger;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class PathFilesProcessor {
 
@@ -23,16 +16,18 @@ public class PathFilesProcessor {
     private static final int NUMBER_OF_TOP_ELEMENTS_TO_PRINT_IN_HDFS = 100;
     private static final String RESULT_FILE_NAME = "bid_result.txt";
 
-    private final String uri;
+    private final String inputURI;
+    private final String outputURI;
 
-    public PathFilesProcessor(String uri) {
-        this.uri = uri;
+    public PathFilesProcessor(String inputURI, String outputURI) {
+        this.inputURI = inputURI;
+        this.outputURI = outputURI;
     }
 
     public void run() throws IOException {
         Configuration configuration = new Configuration();
         FileSystem fileSystem = FileSystem.get(configuration);
-        Path directoryPath = new Path(uri);
+        Path directoryPath = new Path(inputURI);
         RemoteIterator<LocatedFileStatus> locatedFileStatusRemoteIterator = fileSystem.listFiles(directoryPath, true);
 
         processFiles(configuration, fileSystem, locatedFileStatusRemoteIterator);
@@ -40,49 +35,66 @@ public class PathFilesProcessor {
 
     private void processFiles(Configuration configuration, FileSystem fileSystem, RemoteIterator<LocatedFileStatus> locatedFileStatusRemoteIterator) throws IOException {
         ExecutorService service = Executors.newCachedThreadPool();
-        Set<Future<Map<String, Integer>>> futureSet = new HashSet<Future<Map<String, Integer>>>();
 
+        List<FileProcessor> processors = new ArrayList<FileProcessor>();
         while (locatedFileStatusRemoteIterator.hasNext()) {
             LocatedFileStatus fileStatus = locatedFileStatusRemoteIterator.next();
             FileProcessor processor = new FileProcessor(fileStatus, fileSystem, configuration);
-            Future<Map<String, Integer>> future = service.submit(processor);
-            futureSet.add(future);
+            processors.add(processor);
         }
 
-        Map<String, Integer> combinedIdentsMap = createCombinedMapOfUniqueIdents(futureSet);
-        List<Map.Entry<String, Integer>> sortedDescendedEntities = sortMapByValuesDescending(combinedIdentsMap);
         try {
-            writeTopNipInYouIdents(NUMBER_OF_TOP_ELEMENTS_TO_PRINT_IN_HDFS, sortedDescendedEntities);
-        } catch (URISyntaxException e) {
+            service.invokeAll(processors);
+        } catch (InterruptedException e) {
             LOGGER.error(e.getMessage(), e);
         }
-    }
 
-    private Map<String, Integer> createCombinedMapOfUniqueIdents(Set<Future<Map<String, Integer>>> futureSet) {
-        LOGGER.info("Creating combined map of unique idents ...");
-        Map<String, Integer> combinedMap = new TreeMap<String, Integer>(Collections.<String>reverseOrder());
+        Map<String, Integer> stringSet = new TreeMap<String, Integer>(Collections.reverseOrder());
+        ;
+        Path outputDirectory = new Path(outputURI);
+        FileStatus[] fileStatuses = fileSystem.listStatus(outputDirectory);
+        List<BufferedReader> readers = new ArrayList<BufferedReader>();
+        for (FileStatus fileStatus : fileStatuses) {
+            FSDataInputStream stream = fileSystem.open(fileStatus.getPath());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            readers.add(reader);
+        }
 
-        for (Future<Map<String, Integer>> integerFuture : futureSet) {
-            try {
-                Map<String, Integer> value = integerFuture.get();
-                for (Map.Entry<String, Integer> stringIntegerEntry : value.entrySet()) {
-                    Integer previousValue = combinedMap.get(stringIntegerEntry.getKey());
-                    if (previousValue == null) {
-                        combinedMap.put(stringIntegerEntry.getKey(), stringIntegerEntry.getValue());
-                    } else {
-                        combinedMap.put(stringIntegerEntry.getKey(), previousValue + stringIntegerEntry.getValue());
+        for (int i = 0; i < FileProcessor.NUMBER_OF_PROCESSING_RECORDS; ++i) {
+            for (BufferedReader reader : readers) {
+                String s = reader.readLine();
+                if (s == null) {
+                    continue;
+                }
+
+                String[] split = s.split("\\t");
+                String name = split[0];
+                Integer value = Integer.valueOf(split[1]);
+                Map.Entry entry = ((TreeMap) stringSet).lastEntry();
+                if (entry != null) {
+                    Integer minimumValue = (Integer) entry.getValue();
+                    if (minimumValue != null && value < minimumValue) {
+                        continue;
                     }
                 }
-            } catch (InterruptedException e) {
-                LOGGER.error(e.getMessage(), e);
-            } catch (ExecutionException e) {
-                LOGGER.error(e.getMessage(), e);
+
+                Integer integer = stringSet.get(name);
+                if (integer == null) {
+                    stringSet.put(name, value);
+                } else {
+                    stringSet.put(name, integer + value);
+                }
             }
         }
 
-        LOGGER.info("Combined map of unique idents creation completed");
+        List<Map.Entry<String, Integer>> entries = sortMapByValuesDescending(stringSet);
+        try {
+            writeTopNipInYouIdents(NUMBER_OF_TOP_ELEMENTS_TO_PRINT_IN_HDFS, entries);
+        } catch (URISyntaxException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
 
-        return combinedMap;
+        fileSystem.close();
     }
 
     private List<Map.Entry<String, Integer>> sortMapByValuesDescending(Map<String, Integer> map) {
@@ -113,6 +125,7 @@ public class PathFilesProcessor {
         OutputStream outputStream = fileSystem.create(file);
         BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
         int i = 0;
+//        TODO can be rewritten via streams
         for (Map.Entry<String, Integer> stringIntegerEntry : entryList) {
             bufferedWriter.write(stringIntegerEntry.getKey() + " : " + stringIntegerEntry.getValue());
             bufferedWriter.write('\n');
@@ -123,7 +136,6 @@ public class PathFilesProcessor {
         }
 
         bufferedWriter.close();
-        fileSystem.close();
 
         LOGGER.info("Writing top " + count + " ipInYou idents completed");
     }
