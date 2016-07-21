@@ -1,3 +1,5 @@
+package ru.hokan;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
@@ -8,29 +10,27 @@ import org.apache.hadoop.io.compress.CompressionCodecFactory;
 import org.apache.log4j.Logger;
 
 import java.io.*;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 public class FileProcessor implements Callable<Object> {
 
-    public static final int NUMBER_OF_PROCESSING_RECORDS = 150000;
+    private static final int NUMBER_OF_PROCESSING_RECORDS = 150000;
     private static final Logger LOGGER = Logger.getLogger(FileProcessor.class);
     private static final int POSITION_OF_IP_IN_YOU_ID_IN_LOG_FILE = 2;
     private final LocatedFileStatus fileStatus;
     private final FileSystem fileSystem;
     private final Configuration configuration;
     private int processingRecordsBlock = 0;
-    private Map<String, Integer> stringSet = new TreeMap<String, Integer>(Collections.reverseOrder());
-    ;
+    private Map<String, Integer> resultMap = new HashMap<String, Integer>(NUMBER_OF_PROCESSING_RECORDS);
+    private final String outputURI;
 
-    public FileProcessor(LocatedFileStatus fileStatus, FileSystem fileSystem, Configuration configuration) {
+    public FileProcessor(LocatedFileStatus fileStatus, FileSystem fileSystem, Configuration configuration, String outputURI) {
         this.fileStatus = fileStatus;
         this.fileSystem = fileSystem;
         this.configuration = configuration;
+        this.outputURI = outputURI;
     }
 
     /**
@@ -52,7 +52,7 @@ public class FileProcessor implements Callable<Object> {
         InputStream inputStream = null;
         try {
             inputStream = codec.createInputStream(fileSystem.open(inputPath));
-            getIpInYouIdentSet(inputStream);
+            processFile(inputStream);
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         } finally {
@@ -65,7 +65,8 @@ public class FileProcessor implements Callable<Object> {
         return null;
     }
 
-    private void getIpInYouIdentSet(InputStream stream) {
+//    TODO can be enhanced via processing in parallel passing different offsets of file to threads
+    private void processFile(InputStream stream) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         try {
             for (String line; (line = reader.readLine()) != null; ) {
@@ -74,50 +75,57 @@ public class FileProcessor implements Callable<Object> {
                     continue;
                 }
 
-                Integer previousValue = stringSet.get(ipInYouIdent);
+                Integer previousValue = resultMap.get(ipInYouIdent);
                 if (previousValue == null) {
-                    stringSet.put(ipInYouIdent, 1);
+                    resultMap.put(ipInYouIdent, 1);
                 } else {
-                    stringSet.put(ipInYouIdent, previousValue + 1);
+                    resultMap.put(ipInYouIdent, previousValue + 1);
                 }
 
-                if (stringSet.size() == NUMBER_OF_PROCESSING_RECORDS) {
-                    try {
-                        writeRecordsToHDFS();
-                    } catch (URISyntaxException e) {
-                        LOGGER.error(e.getMessage(), e);
-                    }
-
+                if (resultMap.size() == NUMBER_OF_PROCESSING_RECORDS) {
+                    dropDataToHDFS();
                     processingRecordsBlock++;
-                    stringSet.clear();
+                    resultMap.clear();
                 }
             }
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
+
+        dropDataToHDFS();
     }
 
-    private void writeRecordsToHDFS() throws URISyntaxException, IOException {
+    private void dropDataToHDFS() {
+        List<Map.Entry<String, Integer>> entries = SortUtils.sortMapByValuesDescending(resultMap);
+        try {
+            writeRecordsToHDFS(entries);
+        } catch (URISyntaxException e) {
+            LOGGER.error(e.getMessage(), e);
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
+    private void writeRecordsToHDFS(List<Map.Entry<String, Integer>> entries) throws URISyntaxException, IOException {
         String threadName = Thread.currentThread().getName();
         String blockFileName = threadName + "-block-" + processingRecordsBlock;
-        String hostname = System.getenv("HOSTNAME");
         Configuration configuration = new Configuration();
-        FileSystem fileSystem = FileSystem.get(new URI("hdfs://" + hostname + ":9000"), configuration);
-        Path file = new Path("hdfs://" + hostname + ":9000/job_output/" + blockFileName);
-        if (fileSystem.exists(file)) {
-            fileSystem.delete(file, true);
+        FileSystem fileSystem = FileSystem.get(configuration);
+        Path filePath = new Path(outputURI + blockFileName);
+        if (fileSystem.exists(filePath)) {
+            fileSystem.delete(filePath, true);
         }
 
-        OutputStream outputStream = fileSystem.create(file);
+        OutputStream outputStream = fileSystem.create(filePath);
         BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-        LOGGER.info("Writing " + NUMBER_OF_PROCESSING_RECORDS + " into \'" + blockFileName + "\' from \'" + threadName + "\' thread ...");
-        for (Map.Entry<String, Integer> stringIntegerEntry : stringSet.entrySet()) {
+        LOGGER.info("Writing into \'" + blockFileName + "\' from \'" + threadName + "\' thread ...");
+        for (Map.Entry<String, Integer> stringIntegerEntry : entries) {
             bufferedWriter.write(stringIntegerEntry.getKey() + "\t" + stringIntegerEntry.getValue());
             bufferedWriter.write('\n');
         }
 
         bufferedWriter.close();
 
-        LOGGER.info("Writing " + NUMBER_OF_PROCESSING_RECORDS + " into \'" + blockFileName + "\' from \'" + threadName + "\' thread completed");
+        LOGGER.info("Writing into \'" + blockFileName + "\' from \'" + threadName + "\' thread completed");
     }
 }

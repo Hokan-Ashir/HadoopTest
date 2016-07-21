@@ -12,9 +12,9 @@ do
     sleep 3
 done
 
-echo "NodeManager started. Hadoop cluster initialized. Awaiting 30 sec. to get NameNode come from SafeMode state ..."
-sleep 30
-echo "NameNode came from SafeMode state"
+echo "NodeManager started. Hadoop cluster initialized. Leaving NameNode from SafeMode state ..."
+bin/hdfs dfsadmin -safemode leave
+echo "NameNode leaved SafeMode state"
 
 echo "Staring history server"
 ./sbin/mr-jobhistory-daemon.sh start historyserver
@@ -31,4 +31,4 @@ export HADOOP_CLIENT_OPTS="-Xmx4g -Xmn1g -Xms4g $HADOOP_CLIENT_OPTS"
 echo "Running a job ..."
 #bin/hadoop jar /opt/homework-3.jar ru.hokan.text.IpBytesCounter hdfs://$HOSTNAME:9000/$INPUT_JOB_PATH/ hdfs://$HOSTNAME:9000/$OUTPUT_JOB_PATH
 bin/hadoop jar /opt/homework-3.jar ru.hokan.custom.IpBytesCounter hdfs://$HOSTNAME:9000/$INPUT_JOB_PATH/ hdfs://$HOSTNAME:9000/$OUTPUT_JOB_PATH
-echo "MR job has finished"
+echo "Job has finished"

@@ -2,12 +2,12 @@
 
 INPUT_JOB_PATH=job_input
 OUTPUT_JOB_PATH=job_output
-#FILE_NAMES_ARRAY[0]=bid.20130606.txt.bz2
-#FILE_NAMES_ARRAY[1]=bid.20130607.txt.bz2
-#FILE_NAMES_ARRAY[2]=bid.20130608.txt.bz2
-#FILE_NAMES_ARRAY[3]=bid.20130609.txt.bz2
-#FILE_NAMES_ARRAY[4]=bid.20130610.txt.bz2
-#FILE_NAMES_ARRAY[5]=bid.20130611.txt.bz2
+FILE_NAMES_ARRAY[0]=bid.20130606.txt.bz2
+FILE_NAMES_ARRAY[1]=bid.20130607.txt.bz2
+FILE_NAMES_ARRAY[2]=bid.20130608.txt.bz2
+FILE_NAMES_ARRAY[3]=bid.20130609.txt.bz2
+FILE_NAMES_ARRAY[4]=bid.20130610.txt.bz2
+FILE_NAMES_ARRAY[5]=bid.20130611.txt.bz2
 FILE_NAMES_ARRAY[6]=bid.20130612.txt.bz2
 #FILE_NAMES_ARRAY[7]=bid.20131019.txt.bz2
 #FILE_NAMES_ARRAY[8]=bid.20131020.txt.bz2
@@ -20,14 +20,16 @@ do
     sleep 3
 done
 
-echo "NodeManager started. Hadoop cluster initialized. Awaiting 30 sec. to get NameNode come from SafeMode state ..."
-sleep 30
-echo "NameNode came from SafeMode state"
+
+echo "NodeManager started. Hadoop cluster initialized. Leaving NameNode from SafeMode state ..."
+bin/hdfs dfsadmin -safemode leave
+echo "NameNode leaved SafeMode state"
 
 echo "Staring history server"
 ./sbin/mr-jobhistory-daemon.sh start historyserver
 echo "History server started"
 
+# TODO add pre-decompression phase
 bin/hdfs dfs -mkdir hdfs://$HOSTNAME:9000/$INPUT_JOB_PATH
 bin/hdfs dfs -mkdir hdfs://$HOSTNAME:9000/$OUTPUT_JOB_PATH
 for n in "${FILE_NAMES_ARRAY[@]}"; do
@@ -47,7 +49,23 @@ cd $HADOOP_PREFIX
 #-XX:+UseG1GC -XX:+UseStringDeduplication
 #-Xmn4g
 # -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -XX:+ScavengeBeforeFullGC -XX:+CMSScavengeBeforeRemark
+
+# settings for remote jvisualvm debugging
+# on host, from where you deploy your jvisualvm you must create SSH tunnel via this command (on Windows you may use gitBash)
+# ssh -L 9010:localhost:9010 root@10.16.10.109
+# where 10.16.10.109 is host of virtual box (see "remote.host.ip" property in pom-file)
+# also you MUST expose port 9010 in docker container via "docker run ... -p 9010:9010 ... "
+#
+# then simply run jvisualvm and add remote host 10.16.10.109:9010
+export HADOOP_CLIENT_OPTS="-Dcom.sun.management.jmxremote.rmi.port=9010
+-Dcom.sun.management.jmxremote=true
+-Dcom.sun.management.jmxremote.port=9010
+-Dcom.sun.management.jmxremote.ssl=false
+-Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote.local.only=false
+-Djava.rmi.server.hostname=localhost $HADOOP_CLIENT_OPTS"
 export HADOOP_CLIENT_OPTS="-Xmx4g -Xmn1g -Xms4g $HADOOP_CLIENT_OPTS"
+
 echo "Running a job ..."
-bin/hadoop jar /opt/homework-2.jar MultipleFilesProcessor hdfs://$HOSTNAME:9000/$INPUT_JOB_PATH/ hdfs://$HOSTNAME:9000/$OUTPUT_JOB_PATH
-echo "MR job has finished"
+bin/hadoop jar /opt/homework-2.jar ru.hokan.MultipleFilesProcessor hdfs://$HOSTNAME:9000/$INPUT_JOB_PATH/ hdfs://$HOSTNAME:9000/$OUTPUT_JOB_PATH/
+echo "Job has finished"

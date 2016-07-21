@@ -8,9 +8,20 @@ do
     sleep 3
 done
 
-echo "NodeManager started. Hadoop cluster initialized. Awaiting 30 sec. to get NameNode come from SafeMode state ..."
-sleep 30
-echo "NameNode came from SafeMode state"
+echo "NodeManager started. Hadoop cluster initialized. Leaving NameNode from SafeMode state ..."
+bin/hdfs dfsadmin -safemode leave
+echo "NameNode leaved SafeMode state"
+
+
+echo "Port 9000" >> /etc/ssh/sshd_config
+service sshd restart
+
+#cd $HADOOP_PREFIX/etc/hadoop
+#sed 's/<value>.*/<value>hdfs:\/\/localhost:9000<\/value>/' core-site.xml.template > core-site.xml
+#
+#cd $HADOOP_PREFIX/sbin
+#sh stop-all.sh
+#sh start-all.sh
 
 echo "Staring history server"
 ./sbin/mr-jobhistory-daemon.sh start historyserver

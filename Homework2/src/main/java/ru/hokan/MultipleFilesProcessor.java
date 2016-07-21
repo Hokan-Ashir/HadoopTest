@@ -1,3 +1,5 @@
+package ru.hokan;
+
 public class MultipleFilesProcessor {
 
     public static void main(String[] args) throws Exception {

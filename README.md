@@ -3,10 +3,7 @@ TODO
     ?????
 
  - HW2
-    add parallelism in FileProcessor, batching by i.e. 1000 records per thread
-    У тебя получилось решение, которое сильно зависит от входных данных – даже не только объема, но и состава.
-    Если там будет меньше повторов например – уже и 8гб памяти перестанет хватать 
-    Я бы предложил подумать на тему того, как сделать его (почти) независимым от инпута.
+    MAYBE add parallelism in ru.hokan.FileProcessor, batching by i.e. 1000 records per thread via offsets in file
 
  - HW3
     ?????
