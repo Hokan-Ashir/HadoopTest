@@ -13,8 +13,8 @@ bin/hdfs dfsadmin -safemode leave
 echo "NameNode leaved SafeMode state"
 
 
-echo "Port 9000" >> /etc/ssh/sshd_config
-service sshd restart
+#echo "Port 9000" >> /etc/ssh/sshd_config
+#service sshd restart
 
 #cd $HADOOP_PREFIX/etc/hadoop
 #sed 's/<value>.*/<value>hdfs:\/\/localhost:9000<\/value>/' core-site.xml.template > core-site.xml

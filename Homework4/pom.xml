@@ -184,7 +184,7 @@
                                                  host="${remote.host.ip}"
                                                  username="${remote.host.name}"
                                                  password="${remote.host.password}"
-                                                 command="chmod -R 777 /root"
+                                                 command="chmod -R 777 /root/${job.executor.script.name}"
                                                  timeout="120000"
                                                  usepty="true"
                                         />

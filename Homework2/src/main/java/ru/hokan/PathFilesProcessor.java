@@ -44,23 +44,48 @@ public class PathFilesProcessor {
 
         LOGGER.info("Size of readers: " + readers.size());
 
-        TreeMap<Line, BufferedReader> currentTopRecordsFromBuffers = createBufferedReaderToLineMap(readers);
+        List<Line> lineList = new ArrayList<Line>();
+        List<BufferedReader> bufferedReaders = new ArrayList<BufferedReader>();
+        for (BufferedReader reader : readers) {
+            String s = reader.readLine();
+            String[] split = s.split("\\t");
+            String ipInYouId = split[0];
+            Integer ipInYouIdCount = Integer.valueOf(split[1]);
+            Line line = new Line(ipInYouIdCount, ipInYouId);
+            lineList.add(line);
+            bufferedReaders.add(reader);
+        }
 
-        for (Map.Entry<Line, BufferedReader> lineBufferedReaderEntry : currentTopRecordsFromBuffers.entrySet()) {
-            LOGGER.info(lineBufferedReaderEntry.getKey().getNumberOfIps() + " : " + lineBufferedReaderEntry.getKey().getNameOfIp());
+        for (Line line : lineList) {
+            LOGGER.info(line.getNumberOfIps() + " : " + line.getNameOfIp());
         }
 
         Map<String, Integer> resultMap = new HashMap<String, Integer>(NUMBER_OF_TOP_ELEMENTS_TO_PRINT_IN_HDFS);
         while (true) {
-            Map.Entry<Line, BufferedReader> lineBufferedReaderEntry = currentTopRecordsFromBuffers.firstEntry();
-            Integer value = lineBufferedReaderEntry.getKey().getNumberOfIps();
-            String name = lineBufferedReaderEntry.getKey().getNameOfIp();
+            String minimumKeyValueInList = getMinimumKeyValueInList(lineList);
+            int value = 0;
+            for (int i = 0; i < lineList.size(); i++) {
+                Line line = lineList.get(i);
+                if (line == null || !line.getNameOfIp().equals(minimumKeyValueInList)) {
+                    continue;
+                }
 
-            addNewValueToMap(resultMap, value, name);
+                value += line.getNumberOfIps();
+                String s = bufferedReaders.get(i).readLine();
+                if (s != null) {
+                    String[] split = s.split("\\t");
+                    String ipInYouId = split[0];
+                    Integer ipInYouIdCount = Integer.valueOf(split[1]);
+                    Line nextLine = new Line(ipInYouIdCount, ipInYouId);
+                    lineList.set(i, nextLine);
+                } else {
+                    lineList.set(i, null);
+                }
+            }
 
-            readNewLineFromFile(currentTopRecordsFromBuffers, lineBufferedReaderEntry);
+            addNewValueToMap(resultMap, value, minimumKeyValueInList);
 
-            if (currentTopRecordsFromBuffers.size() == 0) {
+            if (isNoMoreLinesToProcess(lineList)) {
                 break;
             }
         }
@@ -73,6 +98,34 @@ public class PathFilesProcessor {
         }
 
         fileSystem.close();
+    }
+
+    private boolean isNoMoreLinesToProcess(List<Line> lines) {
+        for (Line line : lines) {
+            if (line != null) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private String getMinimumKeyValueInList(List<Line> lines) {
+        String result = null;
+        for (Line line : lines) {
+            if (line == null) {
+                continue;
+            }
+
+            String temp = line.getNameOfIp();
+            if (result == null) {
+                result = temp;
+            } else if (temp.compareTo(result) < 0) {
+                result = temp;
+            }
+        }
+
+        return result;
     }
 
     private void processFiesInSeparateThreads(Configuration configuration, FileSystem fileSystem, RemoteIterator<LocatedFileStatus> locatedFileStatusRemoteIterator) throws IOException {
@@ -100,32 +153,6 @@ public class PathFilesProcessor {
             readers.add(reader);
         }
         return readers;
-    }
-
-    private TreeMap<Line, BufferedReader> createBufferedReaderToLineMap(List<BufferedReader> readers) throws IOException {
-        TreeMap<Line, BufferedReader> currentTopRecordsFromBuffers = new TreeMap<Line, BufferedReader>();
-        for (BufferedReader reader : readers) {
-            String s = reader.readLine();
-            putNewLineInBuffersMap(currentTopRecordsFromBuffers, reader, s);
-        }
-        return currentTopRecordsFromBuffers;
-    }
-
-    private void readNewLineFromFile(TreeMap<Line, BufferedReader> currentTopRecordsFromBuffers, Map.Entry<Line, BufferedReader> lineBufferedReaderEntry) throws IOException {
-        BufferedReader reader = lineBufferedReaderEntry.getValue();
-        currentTopRecordsFromBuffers.pollFirstEntry();
-        String nextLine = reader.readLine();
-        if (nextLine != null) {
-            putNewLineInBuffersMap(currentTopRecordsFromBuffers, reader, nextLine);
-        }
-    }
-
-    private void putNewLineInBuffersMap(TreeMap<Line, BufferedReader> currentTopRecordsFromBuffers, BufferedReader reader, String nextLine) {
-        String[] split = nextLine.split("\\t");
-        String ipInYouId = split[0];
-        Integer ipInYouIdCount = Integer.valueOf(split[1]);
-        Line line = new Line(ipInYouIdCount, ipInYouId);
-        currentTopRecordsFromBuffers.put(line, reader);
     }
 
     private void addNewValueToMap(Map<String, Integer> resultMap, Integer value, String name) {
@@ -209,7 +236,12 @@ public class PathFilesProcessor {
          */
         @Override
         public int compareTo(Line o) {
-            return o.getNumberOfIps().compareTo(numberOfIps);
+            int nameComparedValue = nameOfIp.compareTo(o.getNameOfIp());
+            if (nameComparedValue == 0) {
+                return numberOfIps.compareTo(o.getNumberOfIps());
+            }
+
+            return nameComparedValue;
         }
     }
 }

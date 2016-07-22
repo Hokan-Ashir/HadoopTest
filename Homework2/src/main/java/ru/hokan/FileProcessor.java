@@ -23,7 +23,7 @@ public class FileProcessor implements Callable<Object> {
     private final FileSystem fileSystem;
     private final Configuration configuration;
     private int processingRecordsBlock = 0;
-    private Map<String, Integer> resultMap = new HashMap<String, Integer>(NUMBER_OF_PROCESSING_RECORDS);
+    private Map<String, Integer> resultMap = new TreeMap<String, Integer>();
     private final String outputURI;
 
     public FileProcessor(LocatedFileStatus fileStatus, FileSystem fileSystem, Configuration configuration, String outputURI) {
@@ -96,9 +96,8 @@ public class FileProcessor implements Callable<Object> {
     }
 
     private void dropDataToHDFS() {
-        List<Map.Entry<String, Integer>> entries = SortUtils.sortMapByValuesDescending(resultMap);
         try {
-            writeRecordsToHDFS(entries);
+            writeRecordsToHDFS(resultMap);
         } catch (URISyntaxException e) {
             LOGGER.error(e.getMessage(), e);
         } catch (IOException e) {
@@ -106,7 +105,7 @@ public class FileProcessor implements Callable<Object> {
         }
     }
 
-    private void writeRecordsToHDFS(List<Map.Entry<String, Integer>> entries) throws URISyntaxException, IOException {
+    private void writeRecordsToHDFS(Map<String, Integer> entries) throws URISyntaxException, IOException {
         String threadName = Thread.currentThread().getName();
         String blockFileName = threadName + "-block-" + processingRecordsBlock;
         Configuration configuration = new Configuration();
@@ -119,7 +118,7 @@ public class FileProcessor implements Callable<Object> {
         OutputStream outputStream = fileSystem.create(filePath);
         BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
         LOGGER.info("Writing into \'" + blockFileName + "\' from \'" + threadName + "\' thread ...");
-        for (Map.Entry<String, Integer> stringIntegerEntry : entries) {
+        for (Map.Entry<String, Integer> stringIntegerEntry : entries.entrySet()) {
             bufferedWriter.write(stringIntegerEntry.getKey() + "\t" + stringIntegerEntry.getValue());
             bufferedWriter.write('\n');
         }
