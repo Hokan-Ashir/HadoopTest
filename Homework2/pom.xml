@@ -182,7 +182,6 @@
                                                  timeout="120000"
                                                  usepty="true"
                                         />
-                                        <!--/etc/bootstrap.sh -bash-->
                                         <echo message="Hadoop cluster in demon mode is running" />
 
                                         <!--TODO add \r\n -> \n sed script removal in case of emergency moving from Win to Linux and wondering WTF?-->

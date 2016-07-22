@@ -36,6 +36,7 @@
         <remote.host.password>12345678</remote.host.password>
         <docker.container.name>homework5</docker.container.name>
         <job.executor.script.name>execute-job.sh</job.executor.script.name>
+        <yarn.site.settings.file.name>yarn-site.xml</yarn.site.settings.file.name>
 
         <container.module.name>gs-yarn-basic-container</container.module.name>
         <app.master.module.name>gs-yarn-basic-appmaster</app.master.module.name>

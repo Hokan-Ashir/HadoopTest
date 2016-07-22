@@ -14,8 +14,9 @@ public class ContainerApplication {
     }
 
     @Bean
-    public HelloPojo helloPojo() {
-        return new HelloPojo();
+    public DigitsGeneratorSorter createDigitsGeneratorSorter() {
+//        TODO YarnContainerBuilder
+        return new DigitsGeneratorSorter();
     }
 
 }

@@ -111,6 +111,12 @@
                                              todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
                                         <echo message="Coping ${file.name.to.copy.yarn.client} completed" />
 
+                                        <echo message="Coping ${yarn.site.settings.file.name} ..." />
+                                        <scp trust="true" failonerror="true" verbose="off" sftp="true"
+                                             file="./${yarn.site.settings.file.name}"
+                                             todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
+                                        <echo message="Coping ${yarn.site.settings.file.name} completed" />
+
                                         <!--Coping job executor script -->
                                         <echo message="Coping execute job file: ${job.executor.script.name} ..." />
                                         <scp trust="true" failonerror="true" verbose="off" sftp="true"
@@ -134,11 +140,10 @@
                                                  host="${remote.host.ip}"
                                                  username="${remote.host.name}"
                                                  password="${remote.host.password}"
-                                                 command="docker run -d -it -v $PWD:/opt --name ${docker.container.name} sequenceiq/hadoop-docker:2.7.1"
+                                                 command="docker run -d -it -v $PWD:/opt -v $PWD/yarn-site.xml:/usr/local/hadoop/etc/hadoop/yarn-site.xml --name ${docker.container.name} -p 8088:8088 -p 8042:8042 sequenceiq/hadoop-docker:2.7.1"
                                                  timeout="120000"
                                                  usepty="true"
                                         />
-                                        <!--/etc/bootstrap.sh -bash-->
                                         <echo message="Hadoop cluster in demon mode is running" />
 
                                         <!--TODO add \r\n -> \n sed script removal in case of emergency moving from Win to Linux and wondering WTF?-->
