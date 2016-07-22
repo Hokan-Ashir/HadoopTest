@@ -12,11 +12,9 @@
     <artifactId>gs-yarn-basic-dist</artifactId>
 
     <properties>
-        <file.path.to.copy.yarn.container>${project.basedir}/target/${dist.module.name}</file.path.to.copy.yarn.container>
+        <file.path.to.copy.yarn.jars>${project.basedir}/target/${dist.module.name}</file.path.to.copy.yarn.jars>
         <file.name.to.copy.yarn.container>${container.module.name}-${project.version}.jar</file.name.to.copy.yarn.container>
-        <file.path.to.copy.yarn.client>${project.basedir}/target/${dist.module.name}</file.path.to.copy.yarn.client>
         <file.name.to.copy.yarn.client>${client.module.name}-${project.version}.jar</file.name.to.copy.yarn.client>
-        <file.path.to.copy.yarn.app.master>${project.basedir}/target/${dist.module.name}</file.path.to.copy.yarn.app.master>
         <file.name.to.copy.yarn.app.master>${app.master.module.name}-${project.version}.jar</file.name.to.copy.yarn.app.master>
     </properties>
 
@@ -95,19 +93,19 @@
                                         <!--Coping jar files-->
                                         <echo message="Coping ${file.name.to.copy.yarn.container} ..." />
                                         <scp trust="true" failonerror="true" verbose="off" sftp="true"
-                                             file="${file.path.to.copy.yarn.container}/${file.name.to.copy.yarn.container}"
+                                             file="${file.path.to.copy.yarn.jars}/${file.name.to.copy.yarn.container}"
                                              todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
                                         <echo message="Coping ${file.name.to.copy.yarn.container} completed" />
 
                                         <echo message="Coping ${file.name.to.copy.yarn.app.master} ..." />
                                         <scp trust="true" failonerror="true" verbose="off" sftp="true"
-                                             file="${file.path.to.copy.yarn.app.master}/${file.name.to.copy.yarn.app.master}"
+                                             file="${file.path.to.copy.yarn.jars}/${file.name.to.copy.yarn.app.master}"
                                              todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
                                         <echo message="Coping ${file.name.to.copy.yarn.app.master} completed" />
 
                                         <echo message="Coping ${file.name.to.copy.yarn.client} ..." />
                                         <scp trust="true" failonerror="true" verbose="off" sftp="true"
-                                             file="${file.path.to.copy.yarn.client}/${file.name.to.copy.yarn.client}"
+                                             file="${file.path.to.copy.yarn.jars}/${file.name.to.copy.yarn.client}"
                                              todir="${remote.host.name}:${remote.host.password}@${remote.host.ip}:/root/" />
                                         <echo message="Coping ${file.name.to.copy.yarn.client} completed" />
 

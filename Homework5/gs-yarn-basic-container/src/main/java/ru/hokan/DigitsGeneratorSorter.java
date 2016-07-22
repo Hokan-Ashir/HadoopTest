@@ -1,4 +1,4 @@
-package hello.container;
+package ru.hokan;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
