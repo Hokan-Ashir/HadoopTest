@@ -15,12 +15,15 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 @YarnComponent
 public class DigitsGeneratorSorter {
 
-    private static final int NUMBER_OF_GENERATED_RANDOM_DIGITS = 100000;
+    private static final int NUMBER_OF_GENERATED_RANDOM_DIGITS = 10000000;
     private static final int NUMBER_OF_DIGITS_WRITE_TO_HDFS = 100;
     private static final Log LOGGER = LogFactory.getLog(DigitsGeneratorSorter.class);
     private static final String OUTPUT_FILE_NAME = "result";
@@ -30,6 +33,9 @@ public class DigitsGeneratorSorter {
 
     @OnContainerStart
     public void onContainerStart() throws Exception {
+//        while (true) {
+//
+//        }
         List<Integer> integerList = createAndSortDigits(NUMBER_OF_GENERATED_RANDOM_DIGITS);
         writeRecordsToHDFS(integerList, NUMBER_OF_DIGITS_WRITE_TO_HDFS);
     }
@@ -56,7 +62,6 @@ public class DigitsGeneratorSorter {
 //        String hostname = System.getenv("HOSTNAME");
 
         String hostname = "172.17.0.2";
-        Configuration configuration = new Configuration();
         FileSystem fileSystem = FileSystem.get(new URI("hdfs://" + hostname + ":9000"), configuration);
         Path file = new Path("hdfs://" + hostname + ":9000/" + OUTPUT_FILE_NAME);
         if (fileSystem.exists(file)) {

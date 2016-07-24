@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>"Comprehensive" YARN containers controller</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h3>Current parameters:</h3>
+<!--<div th:object="${HTMLPostResponse}">-->
+<p th:text="'RAM amount (Mb.): ' + ${currentAmountOfRAM}"></p>
+<p th:text="'Priority: ' + ${currentPriority}"></p>
+<p th:text="'Number of containers: ' + ${currentNumberOfContainers}"></p>
+<!--</div>-->
+
+<h3>Controller settings:</h3>
+<form action="#" th:action="@{/}" th:object="${HTMLPostResponse}" method="post">
+    <table>
+        <tr>
+            <td>RAM amount (Mb.):</td>
+            <td><input type="text" th:field="*{amountOfRAM}"/></td>
+            <td th:if="${#fields.hasErrors('amountOfRAM')}" th:errors="*{amountOfRAM}">Title error message</td>
+        </tr>
+        <tr>
+            <td>Priority:</td>
+            <td><input type="text" th:field="*{priority}"/></td>
+            <td th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}">Content error message</td>
+        </tr>
+        <tr>
+            <td>Number of containers:</td>
+            <td><input type="text" th:field="*{numberOfContainers}"/></td>
+            <td th:if="${#fields.hasErrors('numberOfContainers')}" th:errors="*{numberOfContainers}">Content error
+                message
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button type="submit">Change container parameters</button>
+            </td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>

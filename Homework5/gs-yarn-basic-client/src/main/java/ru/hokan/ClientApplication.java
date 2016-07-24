@@ -8,8 +8,7 @@ import org.springframework.yarn.client.YarnClient;
 public class ClientApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ClientApplication.class, args)
-                .getBean(YarnClient.class)
+        SpringApplication.run(ClientApplication.class, args).getBean(YarnClient.class)
                 .submitApplication();
     }
 

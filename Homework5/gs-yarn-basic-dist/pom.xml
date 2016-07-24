@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>Homework5</artifactId>
@@ -138,7 +138,7 @@
                                                  host="${remote.host.ip}"
                                                  username="${remote.host.name}"
                                                  password="${remote.host.password}"
-                                                 command="docker run -d -it -v $PWD:/opt -v $PWD/yarn-site.xml:/usr/local/hadoop/etc/hadoop/yarn-site.xml --name ${docker.container.name} -p 8088:8088 -p 8042:8042 sequenceiq/hadoop-docker:2.7.1"
+                                                 command="docker run -d -it -v $PWD:/opt -v $PWD/yarn-site.xml:/usr/local/hadoop/etc/hadoop/yarn-site.xml --name ${docker.container.name} -p 8088:8088 -p 8042:8042 -p 8080:8080 sequenceiq/hadoop-docker:2.7.1"
                                                  timeout="120000"
                                                  usepty="true"
                                         />

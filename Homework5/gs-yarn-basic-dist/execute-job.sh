@@ -16,6 +16,12 @@ echo "Staring history server"
 ./sbin/mr-jobhistory-daemon.sh start historyserver
 echo "History server started"
 
+#echo "Installing java8 ..."
+#cd /root
+#curl -LO 'http://download.oracle.com/otn-pub/java/jdk/8u91-b14/jdk-8u91-linux-x64.rpm' -H 'Cookie: oraclelicense=accept-securebackup-cookie'
+#rpm -i jdk-8u91-linux-x64.rpm
+#echo "Installing java8 complete"
+
 echo "Running a job ..."
 java -jar /opt/gs-yarn-basic-client-1.0-SNAPSHOT.jar
 echo "Job has finished"
