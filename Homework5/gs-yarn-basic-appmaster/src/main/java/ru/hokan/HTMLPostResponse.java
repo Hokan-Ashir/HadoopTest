@@ -4,7 +4,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 public class HTMLPostResponse {
-    @Min(256)
+    @Min(16)
     @Max(4096)
     private String amountOfRAM;
 

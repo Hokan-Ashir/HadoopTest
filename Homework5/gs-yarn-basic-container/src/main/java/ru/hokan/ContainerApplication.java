@@ -15,7 +15,6 @@ public class ContainerApplication {
 
     @Bean
     public DigitsGeneratorSorter createDigitsGeneratorSorter() {
-//        TODO YarnContainerBuilder
         return new DigitsGeneratorSorter();
     }
 

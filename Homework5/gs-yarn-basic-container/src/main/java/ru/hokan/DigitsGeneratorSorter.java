@@ -15,27 +15,21 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @YarnComponent
 public class DigitsGeneratorSorter {
 
-    private static final int NUMBER_OF_GENERATED_RANDOM_DIGITS = 10000000;
+    private static final int NUMBER_OF_GENERATED_RANDOM_DIGITS = 1000000000;
     private static final int NUMBER_OF_DIGITS_WRITE_TO_HDFS = 100;
     private static final Log LOGGER = LogFactory.getLog(DigitsGeneratorSorter.class);
-    private static final String OUTPUT_FILE_NAME = "result";
+    private static final String OUTPUT_FILE_NAME_PREFIX = "result";
 
     @Autowired
     private Configuration configuration;
 
     @OnContainerStart
     public void onContainerStart() throws Exception {
-//        while (true) {
-//
-//        }
         List<Integer> integerList = createAndSortDigits(NUMBER_OF_GENERATED_RANDOM_DIGITS);
         writeRecordsToHDFS(integerList, NUMBER_OF_DIGITS_WRITE_TO_HDFS);
     }
@@ -57,13 +51,14 @@ public class DigitsGeneratorSorter {
     }
 
     private void writeRecordsToHDFS(List<Integer> integerList, int numberOfIntegerToWrite) throws URISyntaxException, IOException {
-        LOGGER.info("Writing " + numberOfIntegerToWrite + " in sorted list to HDFS in /" + OUTPUT_FILE_NAME + " ...");
+        String outputFileName = OUTPUT_FILE_NAME_PREFIX + "/" + UUID.randomUUID().toString();
+        LOGGER.info("Writing " + numberOfIntegerToWrite + " in sorted list to HDFS in /" + outputFileName + " ...");
 //        TODO can be enhanced via
 //        String hostname = System.getenv("HOSTNAME");
 
         String hostname = "172.17.0.2";
         FileSystem fileSystem = FileSystem.get(new URI("hdfs://" + hostname + ":9000"), configuration);
-        Path file = new Path("hdfs://" + hostname + ":9000/" + OUTPUT_FILE_NAME);
+        Path file = new Path("hdfs://" + hostname + ":9000/" + outputFileName);
         if (fileSystem.exists(file)) {
             fileSystem.delete(file, true);
         }
@@ -79,7 +74,7 @@ public class DigitsGeneratorSorter {
         bufferedWriter.close();
         fileSystem.close();
 
-        LOGGER.info("Writing " + numberOfIntegerToWrite + " in sorted list to HDFS in /" + OUTPUT_FILE_NAME + " complete");
+        LOGGER.info("Writing " + numberOfIntegerToWrite + " in sorted list to HDFS in /" + outputFileName + " complete");
     }
 
 }

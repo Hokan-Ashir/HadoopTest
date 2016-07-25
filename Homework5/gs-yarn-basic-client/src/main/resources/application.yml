@@ -1,6 +1,6 @@
 spring:
     hadoop:
-    # fix hardcoded IP with something like http://stackoverflow.com/questions/5866015/rails-3-how-use-an-env-config-vars-in-a-settings-yml-file
+    # TODO fix hardcoded IP with something like http://stackoverflow.com/questions/5866015/rails-3-how-use-an-env-config-vars-in-a-settings-yml-file
         fsUri: hdfs://172.17.0.2:9000
         resourceManagerHost: 172.17.0.2
     yarn:
@@ -13,6 +13,7 @@ spring:
             launchcontext:
                 archiveFile: gs-yarn-basic-appmaster-1.0-SNAPSHOT.jar
         appmaster:
+            appmasterClass: ru.hokan.CustomAppMaster
             containerCount: 1
             launchcontext:
                 archiveFile: gs-yarn-basic-container-1.0-SNAPSHOT.jar

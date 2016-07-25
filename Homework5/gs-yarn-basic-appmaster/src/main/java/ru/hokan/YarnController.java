@@ -3,11 +3,13 @@ package ru.hokan;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.yarn.am.YarnAppmaster;
 
 import javax.validation.Valid;
 
@@ -17,7 +19,7 @@ public class YarnController {
     private static final Log LOGGER = LogFactory.getLog(YarnController.class);
 
     @Autowired
-    private AppmasterApplication application;
+    private ApplicationContext context;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String processGetMethod(@Valid HTMLPostResponse post, Model model) {
@@ -48,10 +50,11 @@ public class YarnController {
         LOGGER.info("Priority: " + priority);
         LOGGER.info("NumberOfContainers: " + numberOfContainers);
 
+        CustomAppMaster master = context.getBean(CustomAppMaster.class);
         if (bindingResult.hasErrors()) {
-            model.addAttribute("currentAmountOfRAM", application.getAmountOfRAMInMb());
-            model.addAttribute("currentPriority", application.getPriopiry());
-            model.addAttribute("currentNumberOfContainers", application.getNumberOfContainers());
+            model.addAttribute("currentAmountOfRAM", "");
+            model.addAttribute("currentPriority", "");
+            model.addAttribute("currentNumberOfContainers", "");
             return "controller";
         }
 
@@ -59,7 +62,7 @@ public class YarnController {
         model.addAttribute("currentPriority", priority);
         model.addAttribute("currentNumberOfContainers", numberOfContainers);
 
-        application.runApplicationWithParameters(Integer.valueOf(amountOfRAM), Integer.valueOf(priority), Integer.valueOf(numberOfContainers));
+        master.runApplicationWithParameters(Integer.valueOf(amountOfRAM), Integer.valueOf(priority), Integer.valueOf(numberOfContainers));
         return "controller";
     }
 }
